@@ -2,3 +2,4 @@ Django>=2.0
 graphene_django
 django-filter>=2
 django-cors-headers
+gunicorn
