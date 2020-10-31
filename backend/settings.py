@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'graphene_django',
     'skeleton.apps.SkeletonConfig',
+    'skeleton',
     "django_filters",
     'corsheaders'
 ]
