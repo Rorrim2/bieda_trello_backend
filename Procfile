@@ -1,2 +1,2 @@
 release: bash startingscript.sh
-web: gunicorn backend.wsgi --log-file
+web: gunicorn backend.wsgi --log-file -
