@@ -25,7 +25,9 @@ SECRET_KEY = 'hi_$qs%7hn0mbrs(kixt$@%*x9#qxg0v7qro#-_a$*+*241qa8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'bieda-trello-backend.herokuapp.com',
+]
 
 
 # Application definition
