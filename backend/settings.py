@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'graphene_django',
-    'skeleton',
+    'skeleton.apps.SkeletonConfig',
     "django_filters",
     'corsheaders'
 ]
