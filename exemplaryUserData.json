@@ -1,0 +1,18 @@
+[
+  {
+    "model": "skeleton.usermodel",
+    "pk": 1,
+    "fields": {
+      "name": "Bob",
+      "last_name": "Skeleton"
+    }
+  },
+  {
+    "model": "skeleton.usermodel",
+    "pk": 2,
+    "fields": {
+      "name": "Johny",
+      "last_name": "Cache"
+    }
+  }
+]
