@@ -1,2 +1,4 @@
 release: python manage.py migrate
-web: gunicorn backend.wsgi --log-file -
+release: python manage.py migrate --run-syncdb
+release: python manage.py loaddata exemplaryUserData
+web: gunicorn backend.wsgi --log-file
