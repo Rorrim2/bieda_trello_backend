@@ -3,3 +3,4 @@ graphene_django
 django-filter>=2
 django-cors-headers
 gunicorn
+django-heroku
