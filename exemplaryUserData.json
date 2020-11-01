@@ -14,5 +14,13 @@
       "name": "Johny",
       "last_name": "Cache"
     }
+  },
+  {
+    "model": "skeleton.usermodel",
+    "pk": 3,
+    "fields": {
+      "name": "Jason",
+      "last_name": "Lord"
+    }
   }
 ]
