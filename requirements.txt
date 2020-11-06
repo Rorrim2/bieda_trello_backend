@@ -4,3 +4,4 @@ django-filter>=2
 django-cors-headers
 gunicorn
 django-heroku
+django-graphql-jwt

@@ -30,7 +30,7 @@ ALLOWED_HOSTS = [
     'bieda-trello-backend.herokuapp.com',
 ]
 
-
+AUTH_USER_MODEL = 'skeleton.UserModel'
 # Application definition
 
 INSTALLED_APPS = [
@@ -47,7 +47,10 @@ INSTALLED_APPS = [
 ]
 
 GRAPHENE = {
-    'SCHEMA': 'skeleton.schema.schema' # Where your Graphene schema lives
+    'SCHEMA': 'skeleton.schema.schema', # Where your Graphene schema lives
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    ],
 }
 
 MIDDLEWARE = [
@@ -58,7 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware'
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
