@@ -46,7 +46,7 @@ class LoginUser(graphene.Mutation):
         return LoginUser(user=user, success=success, token=token)
 
 class RegisterUser(graphene.Mutation):
-    user = graphene.relay.Node.Field(UserType)
+    user = graphene.Field(UserType)
     success = graphene.Boolean()
     token = graphene.String()
 
@@ -65,7 +65,7 @@ class RegisterUser(graphene.Mutation):
             user.set_salt()
             user.set_password(password)
             user.save()
-            
+            success = True
             token = shortcuts.get_token(user)
 
         return RegisterUser(user=user, success=success, token=token)

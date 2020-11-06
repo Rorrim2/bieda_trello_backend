@@ -38,8 +38,8 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=254, unique=True)
     salt = models.CharField(max_length=64)
     hashed_pwd = models.TextField()
-    is_superuser = models.BooleanField()
-    is_staff = models.BooleanField()
+    is_superuser = models.BooleanField(blank=True, default=False)
+    is_staff = models.BooleanField(default=False)
     objects = UserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name', 'last_name']
