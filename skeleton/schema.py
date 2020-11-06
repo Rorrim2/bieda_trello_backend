@@ -5,6 +5,9 @@ import skeleton.users.schema
 # where we define our "endpoints"
         
 class Query(skeleton.users.schema.Query, graphene.ObjectType):
-   pass
+    pass
 
-schema = graphene.Schema(query=Query)
+class Mutation(skeleton.users.schema.Mutation, graphene.ObjectType):
+    pass
+
+schema = graphene.Schema(query=Query, mutation=Mutation)

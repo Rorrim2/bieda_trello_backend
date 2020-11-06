@@ -10,20 +10,20 @@ from .model import UserModel
 class UserType(DjangoObjectType):
     class Meta:
         model = UserModel
-        fields = ("id","name", "last_name")
-        filter_fields = {'id': ['exact']}
+        fields = ("id", "name", "last_name")
+        
         interfaces = (graphene.relay.Node, )
         
 class Query(graphene.ObjectType):
     users = graphene.List(UserType)
-    user = graphene.relay.Node.Field(UserType)
+    user = graphene.Field(UserType)
 
     def resolve_users(self, info: ResolveInfo, **kwargs):
         print(info.path)
         return UserModel.objects.all()
 
 class LoginUser(graphene.Mutation):
-    user = graphene.relay.Node.Field(UserType)
+    user = graphene.Field(UserType)
     success = graphene.Boolean()
     token = graphene.String()
 
@@ -69,3 +69,7 @@ class RegisterUser(graphene.Mutation):
             token = shortcuts.get_token(user)
 
         return RegisterUser(user=user, success=success, token=token)
+
+class Mutation(graphene.ObjectType):
+    loginuser = LoginUser.Field()
+    registeruser = RegisterUser.Field()
