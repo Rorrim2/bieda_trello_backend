@@ -5,3 +5,4 @@ django-cors-headers
 gunicorn
 django-heroku
 django-graphql-jwt
+django-extensions

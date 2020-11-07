@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'graphene_django',
     'skeleton.apps.SkeletonConfig',
     "django_filters",
-    'corsheaders'
+    'corsheaders',
+    'backend'
 ]
 
 GRAPHENE = {
