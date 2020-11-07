@@ -1,13 +1,18 @@
 import graphene
-import skeleton.users.schema
+from skeleton.users.schema import Query as UserQuery
+from skeleton.users.schema import Mutation as UserMutation
+from skeleton.boards.schema import Query as BoardQuery
+
 
 # this file is something like top-level urls.py
 # where we define our "endpoints"
-        
-class Query(skeleton.users.schema.Query, graphene.ObjectType):
+
+class Query(UserQuery, BoardQuery, graphene.ObjectType):
     pass
 
-class Mutation(skeleton.users.schema.Mutation, graphene.ObjectType):
+
+class Mutation(UserMutation, graphene.ObjectType):
     pass
+
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

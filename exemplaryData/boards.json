@@ -1,0 +1,22 @@
+[
+  {
+    "model": "skeleton.boardmodel",
+    "pk": 1,
+    "fields": {
+      "title": "first test board",
+      "maker_id": 0,
+      "is_closed": false,
+      "is_visible": false,
+      "description": "it is first testing board with maker_id 0",
+      "background": ""
+    }
+  },
+  {
+    "model": "skeleton.usermodel",
+    "pk": 2,
+    "fields": {
+      "name": "Johny",
+      "last_name": "Cache"
+    }
+  }
+]
