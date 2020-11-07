@@ -32,7 +32,7 @@ class UserManager(BaseUserManager):
     def get_by_natural_key(self, username):
         return self.get(email=username)
     
-class UserModel(AbstractBaseUser, PermissionsMixin):
+class UserModel(AbstractBaseUser):
     name = models.CharField(max_length=100) 
     last_name = models.CharField(max_length=100)
     email = models.EmailField(max_length=254, unique=True)
@@ -44,8 +44,17 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name', 'last_name']
 
-    class Admin:
-        manager = UserManager()
+    def get_all_permissions(self, obj=None):
+        return PermissionsMixin.get_all_permissions() if self.is_superuser else set()
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
+
+    def has_perms(self, perm_list, obj=None):
+        return self.is_superuser
+
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
 
     def set_salt(self):
         self.salt = crypto.generate_salt()
