@@ -2,6 +2,7 @@ from graphene_django import DjangoObjectType
 import graphene
 from graphql.execution.base import ResolveInfo
 from graphql_jwt import shortcuts
+from django.utils import timezone
 from ..utils import crypto
 from .model import UserModel
 
@@ -40,6 +41,8 @@ class LoginUser(graphene.Mutation):
             if crypto.validate_passwd(user.salt, password, user.hashed_pwd):
                 token = shortcuts.get_token(user)
                 success = True
+                user.last_login = timezone.now()
+                user.save(update_fields=["last_login"])
             else:
                 user = None
 
