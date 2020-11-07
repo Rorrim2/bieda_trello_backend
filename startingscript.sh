@@ -6,3 +6,4 @@ python manage.py migrate --run-syncdb
 # Gary.theGrail@.com : holyPass
 python manage.py loaddata exemplaryData/users.json
 python manage.py loaddata exemplaryData/boards.json
+python manage.py loaddata exemplaryData/lists.json

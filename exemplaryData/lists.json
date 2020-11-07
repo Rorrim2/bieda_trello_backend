@@ -1,0 +1,34 @@
+[
+  {
+    "model": "skeleton.listmodel",
+    "pk": 1,
+    "fields": {
+      "title": "first test list",
+      "board_id": 1
+    }
+  },
+  {
+    "model": "skeleton.listmodel",
+    "pk": 2,
+    "fields": {
+      "title": "second test list",
+      "board_id": 1
+    }
+  },
+  {
+    "model": "skeleton.listmodel",
+    "pk": 3,
+    "fields": {
+      "title": "third test list",
+      "board_id": 1
+    }
+  },
+  {
+    "model": "skeleton.listmodel",
+    "pk": 4,
+    "fields": {
+      "title": "fourth test list",
+      "board_id": 2
+    }
+  }
+]
