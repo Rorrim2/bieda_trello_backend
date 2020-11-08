@@ -2,6 +2,7 @@ import graphene
 from skeleton.users.schema import Query as UserQuery
 from skeleton.users.schema import Mutation as UserMutation
 from skeleton.boards.schema import Query as BoardQuery
+from skeleton.boards.schema import Mutation as BoardMutation
 from skeleton.lists.schema import Query as ListQuery
 from skeleton.cards.schema import Query as CardQuery
 
@@ -13,7 +14,7 @@ class Query(UserQuery, BoardQuery, ListQuery, CardQuery, graphene.ObjectType):
     pass
 
 
-class Mutation(UserMutation, graphene.ObjectType):
+class Mutation(UserMutation, BoardMutation, graphene.ObjectType):
     pass
 
 
