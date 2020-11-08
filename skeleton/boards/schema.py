@@ -71,7 +71,20 @@ class Reopen(graphene.Mutation):
         return Reopen()
 
 
+class PermanentlyDelete(graphene.Mutation):
+    board = graphene.Field(BoardType)
+
+    class Arguments:
+        board_id = graphene.String(required=True)
+
+    def mutate(self, info, board_id:str):
+        if BoardModel.objects.filter(id=board_id).exists():
+            BoardModel.objects.get(id=board_id).delete()
+        return Reopen()
+
+
 class Mutation(graphene.ObjectType):
     createnewboard = CreateNewBoard.Field()
     close = Close.Field()
     reopen = Reopen.Field()
+    permanentlydelete = PermanentlyDelete.Field()
