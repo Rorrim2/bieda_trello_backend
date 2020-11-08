@@ -18,3 +18,7 @@ class Query(graphene.ObjectType):
     def resolve_cards(self, info: ResolveInfo, **kwargs):
         print(info.path)
         return CardModel.objects.all()
+
+
+class Mutation(graphene.ObjectType):
+    pass
