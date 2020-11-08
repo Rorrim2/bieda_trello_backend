@@ -29,12 +29,12 @@ class CreateNewBoard(graphene.Mutation):
         title = graphene.String(required=True)
         email = graphene.String(required=True)
 
-    def mutate(self, info, title: str, email: str):
+    def mutate(self, info, title: str, maker_email: str):
         success = False
         user = None
         board = None
-        if UserModel.objects.filter(email=email).exists():
-            user = UserModel.objects.get(email=email)
+        if UserModel.objects.filter(email=maker_email).exists():
+            user = UserModel.objects.get(email=maker_email)
             board = BoardModel(title=title, background="", maker=user)
             board.save()
             success = True
@@ -43,7 +43,7 @@ class CreateNewBoard(graphene.Mutation):
         return CreateNewBoard(board=board, success=success)
 
 
-class Close(graphene.Mutation):
+class CloseBoard(graphene.Mutation):
     board = graphene.Field(BoardType)
 
     class Arguments:
@@ -54,11 +54,12 @@ class Close(graphene.Mutation):
             board = BoardModel.objects.get(id=board_id)
             board.close()
             board.save()
-        return Close(board_id=board_id)
+        return CloseBoard(board=board)
 
 
-class Reopen(graphene.Mutation):
+class ReopenBoard(graphene.Mutation):
     board = graphene.Field(BoardType)
+    success = graphene.Boolean()
 
     class Arguments:
         board_id = graphene.String(required=True)
@@ -68,23 +69,28 @@ class Reopen(graphene.Mutation):
             board = BoardModel.objects.get(id=board_id)
             board.reopen()
             board.save()
-        return Reopen()
+        return ReopenBoard(board=board)
 
 
 class PermanentlyDelete(graphene.Mutation):
     board = graphene.Field(BoardType)
+    success = graphene.Boolean()
 
     class Arguments:
         board_id = graphene.String(required=True)
 
     def mutate(self, info, board_id:str):
+        success = False
         if BoardModel.objects.filter(id=board_id).exists():
-            BoardModel.objects.get(id=board_id).delete()
-        return Reopen()
+            board = BoardModel.objects.get(id=board_id)
+            board.delete()
+            success = True
+            return PermanentlyDelete(board=board, success=success)
+        return PermanentlyDelete(board=None, success=success)
 
 
 class Mutation(graphene.ObjectType):
     createnewboard = CreateNewBoard.Field()
-    close = Close.Field()
-    reopen = Reopen.Field()
+    closeBoard = CloseBoard.Field()
+    reopenBoard = ReopenBoard.Field()
     permanentlydelete = PermanentlyDelete.Field()

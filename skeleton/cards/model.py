@@ -16,7 +16,7 @@ from skeleton.lists.model import ListModel
 class CardModel(models.Model):
     title = models.CharField(max_length=255)
     description = models.CharField(max_length=255, default="")
-    list = models.ForeignKey(to=ListModel, on_delete=models.DO_NOTHING,)
+    list = models.ForeignKey(to=ListModel, on_delete=models.CASCADE,)
     archived = models.BooleanField(blank=False, default=False)
     # I assumed it will be stored as STRING
     due_date = models.DateTimeField(default=None, blank=True, null=True)
