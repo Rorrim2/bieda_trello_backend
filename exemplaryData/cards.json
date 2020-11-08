@@ -94,7 +94,7 @@
     "model" : "skeleton.cardmodel",
     "pk": 8,
     "fields" : {
-      "title": "seventh test card",
+      "title": "eighth test card",
       "description": "it is seventh testing card of list with id 2",
       "list_id": 2,
       "archived": 0,
@@ -107,7 +107,7 @@
     "model" : "skeleton.cardmodel",
     "pk": 9,
     "fields" : {
-      "title": "seventh test card",
+      "title": "ninth test card",
       "description": "it is seventh testing card of list with id 2",
       "list_id": 2,
       "archived": 0,
@@ -120,7 +120,7 @@
     "model" : "skeleton.cardmodel",
     "pk": 10,
     "fields" : {
-      "title": "seventh test card",
+      "title": "tenth test card",
       "description": "it is seventh testing card of list with id 3",
       "list_id": 3,
       "archived": 0,

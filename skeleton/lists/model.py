@@ -5,7 +5,9 @@
 '''
 from django.db import models
 
+from skeleton.boards.model import BoardModel
+
 
 class ListModel(models.Model):
     title = models.CharField(max_length=255)
-    board_id = models.IntegerField()
+    board = models.ForeignKey(BoardModel, on_delete=models.CASCADE,)
