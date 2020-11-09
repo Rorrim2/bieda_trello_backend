@@ -5,15 +5,17 @@ from graphql_jwt import shortcuts
 from ..utils import crypto
 from .model import UserModel
 
+
 # this file is something like top-level urls.py
 # where we define our "endpoints"
 class UserType(DjangoObjectType):
     class Meta:
         model = UserModel
-        fields = ("id", "name", "last_name")
+        fields = ("id", "name", "last_name", "email")
         
         interfaces = (graphene.relay.Node, )
-        
+
+
 class Query(graphene.ObjectType):
     users = graphene.List(UserType)
     user = graphene.Field(UserType)
@@ -21,6 +23,7 @@ class Query(graphene.ObjectType):
     def resolve_users(self, info: ResolveInfo, **kwargs):
         print(info.path)
         return UserModel.objects.all()
+
 
 class LoginUser(graphene.Mutation):
     user = graphene.Field(UserType)
@@ -44,6 +47,7 @@ class LoginUser(graphene.Mutation):
                 user = None
 
         return LoginUser(user=user, success=success, token=token)
+
 
 class RegisterUser(graphene.Mutation):
     user = graphene.Field(UserType)
@@ -69,6 +73,7 @@ class RegisterUser(graphene.Mutation):
             token = shortcuts.get_token(user)
 
         return RegisterUser(user=user, success=success, token=token)
+
 
 class Mutation(graphene.ObjectType):
     loginuser = LoginUser.Field()
