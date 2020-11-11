@@ -1,10 +1,7 @@
 # Register your models here.
 from django.contrib import admin
 
-from skeleton.boards.model import BoardModel
-from skeleton.cards.model import CardModel
-from skeleton.lists.model import ListModel
-from skeleton.models import UserModel
+from skeleton.models import UserModel, BoardModel, ListModel, CardModel
 
 admin.register(UserModel)
 admin.register(BoardModel)

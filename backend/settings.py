@@ -136,5 +136,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 CORS_ORIGIN_ALLOW_ALL = True
-
+import os
+FIXTURE_DIRS = (
+    os.path.join(BASE_DIR, 'exemplaryData\\'), 
+    )
 django_heroku.settings(locals())
