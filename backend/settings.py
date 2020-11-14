@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'skeleton.apps.SkeletonConfig',
     "django_filters",
     'corsheaders',
-    'backend'
+    'backend',
+    'graphql_jwt.refresh_token.apps.RefreshTokenConfig'
 ]
 
 GRAPHENE = {
@@ -52,6 +53,12 @@ GRAPHENE = {
     'MIDDLEWARE': [
         'graphql_jwt.middleware.JSONWebTokenMiddleware',
     ],
+}
+
+GRAPHQL_JWT = {
+    # ...
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
 }
 
 MIDDLEWARE = [

@@ -50,6 +50,7 @@ class CloseBoard(graphene.Mutation):
         board_id = graphene.String(required=True)
 
     def mutate(self, info, board_id:str):
+        board = None
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)
             board.close()
@@ -65,6 +66,7 @@ class ReopenBoard(graphene.Mutation):
         board_id = graphene.String(required=True)
 
     def mutate(self, info, board_id:str):
+        board = None
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)
             board.reopen()
