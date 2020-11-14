@@ -3,6 +3,7 @@
     "model": "skeleton.usermodel",
     "pk": 1,
     "fields": {
+      "last_login": null,
       "name": "John",
       "last_name": "Cache",
       "email": "Johny.cache@gmail.com",
@@ -16,6 +17,7 @@
     "model": "skeleton.usermodel",
     "pk": 2,
     "fields": {
+      "last_login": null,
       "name": "Spoopy",
       "last_name": "Skeleton",
       "email": "Spoopy.skeleton@o2.pl",
@@ -29,13 +31,56 @@
     "model": "skeleton.usermodel",
     "pk": 3,
     "fields": {
-       "name": "Gary",
+      "last_login": null,
+      "name": "Gary",
       "last_name": "theGraill",
       "email": "Gary.theGrail@.com",
       "salt": "35e3165a560055bc9d95f914b1e30ca1",
       "hashed_pwd": "dc8ee49fd790961c633913a371b775c1f0aabc9105b32ed2297fce18c71fd031",
       "is_superuser": 0,
       "is_staff": 0
+    }
+  },
+  {
+    "model": "skeleton.usermodel",
+    "pk": 4,
+    "fields": {
+      "last_login": null,
+      "name": "Elmo",
+      "last_name": "The Muppet",
+      "email": "elmohellmo@sesame-street.com",
+      "salt": "7ab80a6c1a86727b24e54b7111e8d898",
+      "hashed_pwd": "105285c2b44558b7530adf7ea600b732141082a8b5330e1c7b6ab44f2d6c0d7c",
+      "is_superuser": false,
+      "is_staff": false
+    }
+  },
+  {
+    "model": "skeleton.usermodel",
+    "pk": 5,
+    "fields": {
+      "last_login": "2020-11-07T17:52:09.457Z",
+      "name": "Kamil",
+      "last_name": "Chrustowski",
+      "email": "chrustek123456789@gmail.com",
+      "salt": "ed0565d7da71dd07ca1be1b9b6a08bbe",
+      "hashed_pwd": "6062df3fc0f5152c90112ce3e91d5dc4e7a2c3b3c5a1b70822819f6c376b660a",
+      "is_superuser": true,
+      "is_staff": true
+    }
+  },
+  {
+    "model": "skeleton.usermodel",
+    "pk": 6,
+    "fields": {
+      "last_login": null,
+      "name": "John",
+      "last_name": "Cena",
+      "email": "john_cena@berkeley.edu.com",
+      "salt": "3d1fe9abef2084ee1fa8a3768e64df77",
+      "hashed_pwd": "82568589a1464ebcd726ce5ebfa918682d1b18a224f3a934b5c242571f1efb29",
+      "is_superuser": false,
+      "is_staff": false
     }
   }
 ]
