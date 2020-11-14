@@ -1,3 +1,5 @@
+ls
+rm dec0324fegi0e9
 python manage.py flush --no-input
 python manage.py makemigrations
 python manage.py migrate
