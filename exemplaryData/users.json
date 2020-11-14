@@ -3,7 +3,6 @@
     "model": "skeleton.usermodel",
     "pk": 1,
     "fields": {
-      "last_login": null,
       "name": "John",
       "last_name": "Cache",
       "email": "Johny.cache@gmail.com",
@@ -17,7 +16,6 @@
     "model": "skeleton.usermodel",
     "pk": 2,
     "fields": {
-      "last_login": null,
       "name": "Spoopy",
       "last_name": "Skeleton",
       "email": "Spoopy.skeleton@o2.pl",
@@ -31,7 +29,6 @@
     "model": "skeleton.usermodel",
     "pk": 3,
     "fields": {
-      "last_login": null,
       "name": "Gary",
       "last_name": "theGraill",
       "email": "Gary.theGrail@.com",
@@ -45,7 +42,6 @@
     "model": "skeleton.usermodel",
     "pk": 4,
     "fields": {
-      "last_login": null,
       "name": "Elmo",
       "last_name": "The Muppet",
       "email": "elmohellmo@sesame-street.com",
@@ -59,7 +55,6 @@
     "model": "skeleton.usermodel",
     "pk": 5,
     "fields": {
-      "last_login": "2020-11-07T17:52:09.457Z",
       "name": "Kamil",
       "last_name": "Chrustowski",
       "email": "chrustek123456789@gmail.com",
@@ -73,7 +68,6 @@
     "model": "skeleton.usermodel",
     "pk": 6,
     "fields": {
-      "last_login": null,
       "name": "John",
       "last_name": "Cena",
       "email": "john_cena@berkeley.edu.com",
