@@ -1,0 +1,132 @@
+[
+  {
+    "model" : "skeleton.cardmodel",
+    "pk": 1,
+    "fields" : {
+      "title": "first test card",
+      "description": "it is first testing card of list with id 1",
+      "list_id": 1,
+      "archived": 0,
+      "due_date": "2012-04-23T18:25:43.511Z",
+      "position_in_list": 1,
+      "cover": ""
+    }
+  },
+  {
+    "model" : "skeleton.cardmodel",
+    "pk": 2,
+    "fields" : {
+      "title": "second test card",
+      "description": "it is second testing card of list with id 1",
+      "list_id": 1,
+      "archived": 0,
+      "due_date": null,
+      "position_in_list": 2,
+      "cover": ""
+    }
+  },
+  {
+    "model" : "skeleton.cardmodel",
+    "pk": 3,
+    "fields" : {
+      "title": "third test card",
+      "description": "it is third testing card of list with id 1",
+      "list_id": 1,
+      "archived": 0,
+      "due_date": null,
+      "position_in_list": 3,
+      "cover": ""
+    }
+  },
+  {
+    "model" : "skeleton.cardmodel",
+    "pk": 4,
+    "fields" : {
+      "title": "fourth test card",
+      "description": "it is fourth testing card of list with id 1",
+      "list_id": 1,
+      "archived": 0,
+      "due_date": null,
+      "position_in_list": 4,
+      "cover": ""
+    }
+  },
+  {
+    "model" : "skeleton.cardmodel",
+    "pk": 5,
+    "fields" : {
+      "title": "fifth test card",
+      "description": "it is fifth testing card of list with id 1",
+      "list_id": 1,
+      "archived": 0,
+      "due_date": null,
+      "position_in_list": 5,
+      "cover": ""
+    }
+  },
+  {
+    "model" : "skeleton.cardmodel",
+    "pk": 6,
+    "fields" : {
+      "title": "sixth test card",
+      "description": "it is sixth testing card of list with id 1",
+      "list_id": 1,
+      "archived": 0,
+      "due_date": null,
+      "position_in_list": 6,
+      "cover": ""
+    }
+  },
+  {
+    "model" : "skeleton.cardmodel",
+    "pk": 7,
+    "fields" : {
+      "title": "seventh test card",
+      "description": "it is seventh testing card of list with id 2",
+      "list_id": 2,
+      "archived": 0,
+      "due_date": null,
+      "position_in_list": 1,
+      "cover": ""
+    }
+  },
+  {
+    "model" : "skeleton.cardmodel",
+    "pk": 8,
+    "fields" : {
+      "title": "eighth test card",
+      "description": "it is seventh testing card of list with id 2",
+      "list_id": 2,
+      "archived": 0,
+      "due_date": null,
+      "position_in_list": 2,
+      "cover": ""
+    }
+  },
+  {
+    "model" : "skeleton.cardmodel",
+    "pk": 9,
+    "fields" : {
+      "title": "ninth test card",
+      "description": "it is seventh testing card of list with id 2",
+      "list_id": 2,
+      "archived": 0,
+      "due_date": null,
+      "position_in_list": 3,
+      "cover": ""
+    }
+  },
+  {
+    "model" : "skeleton.cardmodel",
+    "pk": 10,
+    "fields" : {
+      "title": "tenth test card",
+      "description": "it is seventh testing card of list with id 3",
+      "list_id": 3,
+      "archived": 0,
+      "due_date": null,
+      "position_in_list": 1,
+      "cover": ""
+    }
+  }
+]

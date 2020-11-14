@@ -30,7 +30,7 @@ ALLOWED_HOSTS = [
     'bieda-trello-backend.herokuapp.com',
 ]
 
-
+AUTH_USER_MODEL = 'skeleton.UserModel'
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,11 +43,22 @@ INSTALLED_APPS = [
     'graphene_django',
     'skeleton.apps.SkeletonConfig',
     "django_filters",
-    'corsheaders'
+    'corsheaders',
+    'backend',
+    'graphql_jwt.refresh_token.apps.RefreshTokenConfig'
 ]
 
 GRAPHENE = {
-    'SCHEMA': 'skeleton.schema.schema' # Where your Graphene schema lives
+    'SCHEMA': 'skeleton.schema.schema', # Where your Graphene schema lives
+    'MIDDLEWARE': [
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
+    ],
+}
+
+GRAPHQL_JWT = {
+    # ...
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
 }
 
 MIDDLEWARE = [
@@ -58,7 +69,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware'
+    'corsheaders.middleware.CorsMiddleware',
+    'skeleton.utils.middleware.UpdateLastActivityMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -131,5 +143,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 CORS_ORIGIN_ALLOW_ALL = True
-
+import os
+FIXTURE_DIRS = (
+    os.path.join(BASE_DIR, 'exemplaryData\\'), 
+    )
 django_heroku.settings(locals())

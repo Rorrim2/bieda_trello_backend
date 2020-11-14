@@ -1,6 +1,5 @@
 # Create your models here.
-from django.db import models
-
-class UserModel(models.Model):
-    name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+from .users.model import UserModel
+from .boards.model import BoardModel
+from .lists.model import ListModel
+from .cards.model import CardModel

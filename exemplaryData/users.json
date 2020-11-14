@@ -1,0 +1,41 @@
+[
+  {
+    "model": "skeleton.usermodel",
+    "pk": 1,
+    "fields": {
+      "name": "John",
+      "last_name": "Cache",
+      "email": "Johny.cache@gmail.com",
+      "salt": "c4be85e75d606b7b292172343d1f1c7b",
+      "hashed_pwd": "4ba17112031a59307e53cc57a094be59d81571cee3a36c20314b4d663901c6d6",
+      "is_superuser": 0,
+      "is_staff": 0
+    }
+  },
+  {
+    "model": "skeleton.usermodel",
+    "pk": 2,
+    "fields": {
+      "name": "Spoopy",
+      "last_name": "Skeleton",
+      "email": "Spoopy.skeleton@o2.pl",
+      "salt": "e15a13984ab694e5e2ee520160bac064",
+      "hashed_pwd": "dd3d653b81eef64efea80c23a63e53295e30b72553bbcebb6d55df4e961f45f9",
+      "is_superuser": 0,
+      "is_staff": 0
+    }
+  },
+  {
+    "model": "skeleton.usermodel",
+    "pk": 3,
+    "fields": {
+       "name": "Gary",
+      "last_name": "theGraill",
+      "email": "Gary.theGrail@.com",
+      "salt": "35e3165a560055bc9d95f914b1e30ca1",
+      "hashed_pwd": "dc8ee49fd790961c633913a371b775c1f0aabc9105b32ed2297fce18c71fd031",
+      "is_superuser": 0,
+      "is_staff": 0
+    }
+  }
+]
