@@ -3,7 +3,6 @@ from django.db import models
 from ..utils import crypto
 from django.contrib.auth.models import PermissionsMixin
 import unicodedata
-from django.utils.translation import gettext_lazy as _
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -36,7 +35,7 @@ class UserManager(BaseUserManager):
     
 class UserModel(models.Model):
 
-    last_login = models.DateTimeField(_('last login'), blank=True, null=True)
+    last_login = models.DateTimeField(blank=True, null=True)
     name = models.CharField(max_length=100) 
     last_name = models.CharField(max_length=100)
     email = models.EmailField(max_length=254, unique=True)
