@@ -12,6 +12,7 @@ from skeleton.boards.model import BoardModel
 class ListModel(models.Model):
     title = models.CharField(max_length=255)
     board = models.ForeignKey(BoardModel, on_delete=models.CASCADE,)
+    position_on_board = models
     is_hidden = models.BooleanField(default=False)
 
     def hide(self):

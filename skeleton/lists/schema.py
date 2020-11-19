@@ -28,12 +28,13 @@ class CreateNewList(graphene.Mutation):
     class Arguments:
         title = graphene.String(required=True)
         board_id = graphene.String(required=True)
+        position_on_board = graphene.Int(required=True)
 
-    def mutate(self, info, title: str, board_id: str):
+    def mutate(self, info, title: str, board_id: str, position_on_board: int):
         success = False
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)
-            list = ListModel(title=title, board=board)
+            list = ListModel(title=title, board=board, position_on_board=position_on_board)
             list.save()
             success = True
             return CreateNewList(list=list, success=success)
