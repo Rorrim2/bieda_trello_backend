@@ -1,9 +1,15 @@
 import hmac
 import secrets
 import hashlib
+import string
 
 def generate_salt(length: int =16) -> str:
     return secrets.token_hex(length)
+
+def generate_random_str(length: int =16) -> str:
+    return "".join([secrets.choice(
+            string.digits+string.ascii_letters+string.punctuation
+        ) for i in range(length)])
 
 def hash_passwd(salt: str, passwd: str) -> str:
     return hmac.new(salt.encode('utf_8'), 

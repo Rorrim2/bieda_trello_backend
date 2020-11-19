@@ -1,7 +1,7 @@
 from graphene_django import DjangoObjectType
 import graphene
 from graphql.execution.base import ResolveInfo
-from graphql_jwt import shortcuts
+from graphql_jwt import shortcuts, utils
 from django.utils import timezone
 from django.http import HttpRequest
 from ..utils import crypto
@@ -33,7 +33,7 @@ class LoginUser(graphene.Mutation):
     success = graphene.Boolean()
     token = graphene.String()
     refresh_token = graphene.String()
-
+    
     class Arguments:
         email = graphene.String(required=True)
         password = graphene.String(required=True)
@@ -68,6 +68,16 @@ class LogoutUser(graphene.Mutation):
 
     def mutate(self, info: ResolveInfo, refresh_token: str):
         jwt_token = info.context.headers['Authorization'].replace('Bearer ','')
+        jwt = {}
+        print(f"jwt = {jwt_token}")
+        try:
+            jwt = utils.jwt_decode(jwt_token)
+        except Exception as e:
+            print(e)
+        print(jwt)
+        tkn = shortcuts.get_refresh_token(refresh_token, info.context)
+        #tkn.revoke()
+        return LogoutUser(success=True)
 
         
 
@@ -88,7 +98,7 @@ class RegisterUser(graphene.Mutation):
         success = False
         token = ''
         refreshtkn = ''
-        
+
         if not UserModel.objects.filter(email=email).exists():
             user = UserModel(name=name, last_name=last_name, email=email)
             user.set_salt()
@@ -104,3 +114,4 @@ class RegisterUser(graphene.Mutation):
 class Mutation(graphene.ObjectType):
     loginuser = LoginUser.Field()
     registeruser = RegisterUser.Field()
+    logoutuser = LogoutUser.Field()
