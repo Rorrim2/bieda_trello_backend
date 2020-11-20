@@ -59,6 +59,8 @@ GRAPHQL_JWT = {
     # ...
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
+    'JWT_DECODE_HANDLER': 'skeleton.utils.jwt_utils.decode_token',
+    'JWT_PAYLOAD_HANDLER': 'skeleton.utils.jwt_utils.get_payload',
 }
 
 MIDDLEWARE = [
