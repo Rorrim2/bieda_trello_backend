@@ -1,16 +1,16 @@
 from graphene_django import DjangoObjectType
 import graphene
 from graphql.execution.base import ResolveInfo
-from graphql_jwt import shortcuts, utils
+from graphql_jwt import shortcuts
 from django.utils import timezone
-from django.http import HttpRequest
-from ..utils import crypto
+from ..utils import crypto, jwt_utils
 from .model import UserModel
+from django.core import exceptions
+from graphql.error import GraphQLError
 
 
-# this file is something like top-level urls.py
-# where we define our "endpoints"
 class UserType(DjangoObjectType):
+
     class Meta:
         model = UserModel
         fields = ("id", "name", "last_name", "email")
@@ -43,18 +43,20 @@ class LoginUser(graphene.Mutation):
         success = False
         token=''
         refreshtkn = ''
-        print(info.context.headers)
 
         if UserModel.objects.filter(email=email).exists():
             user = UserModel.objects.get(email=email)
             if crypto.validate_passwd(user.salt, password, user.hashed_pwd):
-                token = shortcuts.get_token(user)
-                refreshtkn = shortcuts.create_refresh_token(user)
+                user.jwt_salt = crypto.create_jwt_id()
                 success = True
                 user.last_login = timezone.now()
-                user.save(update_fields=["last_login"])
+                token = shortcuts.get_token(user, info.context)
+                refreshtkn = shortcuts.create_refresh_token(user)
+                user.save(update_fields=["last_login", "jwt_salt"])
             else:
-                user = None
+                raise GraphQLError("Provided password is incorrect")
+        else:
+            raise GraphQLError("Provided email is incorrect")
 
         return LoginUser(user=user, success=success, token=token, refresh_token=refreshtkn)
 
@@ -65,21 +67,19 @@ class LogoutUser(graphene.Mutation):
     class Arguments:
         refresh_token = graphene.String(required=True)
         
-
     def mutate(self, info: ResolveInfo, refresh_token: str):
         jwt_token = info.context.headers['Authorization'].replace('Bearer ','')
-        jwt = {}
-        print(f"jwt = {jwt_token}")
-        try:
-            jwt = utils.jwt_decode(jwt_token)
-        except Exception as e:
-            print(e)
-        print(jwt)
+        jwt_payload = jwt_utils.decode_token(jwt_token, info.context)
         tkn = shortcuts.get_refresh_token(refresh_token, info.context)
-        #tkn.revoke()
+        tkn.revoke()
+        user = shortcuts.get_user_by_payload(jwt_payload)
+        if(user is None):
+            raise exceptions.ObjectDoesNotExist("User doesn't exist for computed payload")
+        user.jwt_salt = crypto.create_jwt_id()
+        user.save(update_fields=["jwt_salt"])
+        
         return LogoutUser(success=True)
 
-        
 
 class RegisterUser(graphene.Mutation):
     user = graphene.Field(UserType)
@@ -99,15 +99,18 @@ class RegisterUser(graphene.Mutation):
         token = ''
         refreshtkn = ''
 
-        if not UserModel.objects.filter(email=email).exists():
+        if UserModel.objects.filter(email=email).exists():
+            raise GraphQLError(f"Given email {email} is in use")
+        else:
             user = UserModel(name=name, last_name=last_name, email=email)
             user.set_salt()
             user.set_password(password)
+            user.jwt_salt = crypto.create_jwt_id()
             user.save()
             success = True
             token = shortcuts.get_token(user)
             refreshtkn = shortcuts.create_refresh_token(user)
-
+        
         return RegisterUser(user=user, success=success, token=token, refresh_token=refreshtkn)
 
 
