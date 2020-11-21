@@ -44,6 +44,7 @@ class UserModel(models.Model):
     is_superuser = models.BooleanField(blank=True, default=False)
     is_staff = models.BooleanField(default=False)
     is_active = True
+    jwt_salt = models.CharField(max_length=64, blank=True, default=crypto.create_jwt_id)
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
