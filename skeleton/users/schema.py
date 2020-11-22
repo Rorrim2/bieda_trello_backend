@@ -10,10 +10,18 @@ from graphql.error import GraphQLError
 
 
 class UserType(DjangoObjectType):
+    
+    boards = graphene.List('skeleton.boards.schema.BoardType')
+    owns = graphene.List('skeleton.boards.schema.BoardType')
+    manages = graphene.List('skeleton.boards.schema.BoardType')
+
+    @graphene.resolve_only_args
+    def resolve_boards(self):
+        return set(list(self.boards.all()) + list(self.owns.all()) + list(self.manages.all()))
 
     class Meta:
         model = UserModel
-        fields = ("id", "name", "last_name", "email")
+        fields = ("id", "name", "last_name", "email", "boards")
         
         interfaces = (graphene.relay.Node, )
 

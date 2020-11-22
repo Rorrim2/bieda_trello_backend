@@ -8,6 +8,23 @@ from skeleton.users.model import UserModel
 
 
 class BoardType(DjangoObjectType):
+
+    maker = graphene.Field('skeleton.users.schema.UserType')
+    users = graphene.List('skeleton.users.schema.UserType')
+    admins = graphene.List('skeleton.users.schema.UserType')
+
+    @graphene.resolve_only_args
+    def resolve_maker(self):
+        return self.maker
+
+    @graphene.resolve_only_args
+    def resolve_users(self):
+        return self.users.all()
+
+    @graphene.resolve_only_args
+    def resolve_admins(self):
+        return self.admins.all()
+
     class Meta:
         model = BoardModel
         interfaces = (relay.Node, )
@@ -36,6 +53,7 @@ class CreateNewBoard(graphene.Mutation):
         if UserModel.objects.filter(email=maker_email).exists():
             user = UserModel.objects.get(email=maker_email)
             board = BoardModel(title=title, background="", maker=user)
+            board.admins.add(user)
             board.save()
             success = True
         else:
