@@ -1,3 +1,4 @@
+from skeleton.utils.jwt_utils import get_user_by_context
 import graphene
 from graphene_django import DjangoObjectType
 from graphql.execution.base import ResolveInfo
@@ -14,12 +15,16 @@ class CardType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    card = graphene.Field(CardType)
+    card = graphene.Field(CardType, id=graphene.String())
     cards = graphene.List(CardType)
 
     def resolve_cards(self, info: ResolveInfo, **kwargs):
         print(info.path)
         return CardModel.objects.all()
+
+    def resolve_card(self, info: ResolveInfo, **kwargs):
+        print(info.path)
+        return CardModel.objects.filter(id=id).get()
 
 
 class CreateCard(graphene.Mutation):
@@ -31,8 +36,8 @@ class CreateCard(graphene.Mutation):
         email = graphene.String(required=True)
         list_id = graphene.String(required=True)
 
-    def mutate(self, info, title: str, email: str, list_id: str):
-        pass
+    def mutate(self, info: ResolveInfo, title: str, email: str, list_id: str):
+        user = get_user_by_context(info.context)
 
 
 class EditCard(graphene.Mutation):
@@ -50,9 +55,10 @@ class EditCard(graphene.Mutation):
         cover = graphene.String(required=False)
 
     def mutate(self,
-               info,
+               info: ResolveInfo,
                card_id: str,
                **kwargs):
+        user = get_user_by_context(info.context)
         title = kwargs.get('title', None)
         description = kwargs.get('description', None)
         list_id = kwargs.get('list_id', None)

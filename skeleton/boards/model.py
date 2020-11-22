@@ -1,7 +1,5 @@
-from django.contrib.auth.base_user import BaseUserManager
-
 from skeleton.users.model import UserModel
-
+from django.core import exceptions
 '''
     id: int
     # necessary to create
@@ -27,9 +25,15 @@ class BoardModel(models.Model):
     background = models.CharField(max_length=255)
     users = models.ManyToManyField(UserModel, default=None, related_name='boards')
     admins = models.ManyToManyField(UserModel, default=None, related_name='manages')
-    
+
     def close(self):
         self.is_closed = True
 
     def reopen(self):
         self.is_closed = False
+
+    def check_user(self, user, message: str):
+        if (user not in self.users and
+            user not in self.admins and
+            user is not self.maker):
+                raise exceptions.PermissionDenied(message)

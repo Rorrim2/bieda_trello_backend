@@ -1,14 +1,11 @@
 from skeleton.utils.jwt_utils import get_user_by_context
 import graphene
-from graphene.utils.deprecated import deprecated
 from graphene_django import DjangoObjectType
 from graphql.execution.base import ResolveInfo
 from graphene import relay
 from django.core import exceptions
-from graphql.error import GraphQLError
 from skeleton.boards.model import BoardModel
 from skeleton.users.model import UserModel
-from graphql_jwt import shortcuts
 
 
 class BoardType(DjangoObjectType):
@@ -16,6 +13,8 @@ class BoardType(DjangoObjectType):
     maker = graphene.Field('skeleton.users.schema.UserType')
     users = graphene.List('skeleton.users.schema.UserType')
     admins = graphene.List('skeleton.users.schema.UserType')
+
+    lists = graphene.List('skeleton.lists.schema.ListType')
 
     @graphene.resolve_only_args
     def resolve_maker(self):
@@ -29,6 +28,10 @@ class BoardType(DjangoObjectType):
     def resolve_admins(self):
         return self.admins.all()
 
+    @graphene.resolve_only_args
+    def resolve_lists(self):
+        return self.lists.all()
+
 
     class Meta:
         model = BoardModel
@@ -37,10 +40,13 @@ class BoardType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     board = graphene.Field(BoardType)
-    boards = graphene.List(BoardType)
+    boards = graphene.List(BoardType, id=graphene.String())
 
     def resolve_boards(self, info: ResolveInfo, **kwargs):
         return BoardModel.objects.all()
+
+    def resolve_boards(self, info: ResolveInfo, id: str, **kwargs):
+        return BoardModel.objects.filter(id=id).get()
 
 
 class CreateNewBoard(graphene.Mutation):
