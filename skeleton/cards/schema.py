@@ -2,15 +2,16 @@ from skeleton.utils.jwt_utils import get_user_by_context
 import graphene
 from graphene_django import DjangoObjectType
 from graphql.execution.base import ResolveInfo
-
+from django.core import exceptions
 from skeleton.cards.model import CardModel
 from skeleton.lists.model import ListModel
 
 
 class CardType(DjangoObjectType):
+
+
     class Meta:
         model = CardModel
-
         interfaces = (graphene.relay.Node, )
 
 
@@ -28,21 +29,31 @@ class Query(graphene.ObjectType):
 
 
 class CreateCard(graphene.Mutation):
+
     card = graphene.Field(CardType)
     success = graphene.Boolean()
 
+
     class Arguments:
         title = graphene.String(required=True)
-        email = graphene.String(required=True)
         list_id = graphene.String(required=True)
 
-    def mutate(self, info: ResolveInfo, title: str, email: str, list_id: str):
+    def mutate(self, info: ResolveInfo, title: str, list_id: str):
         user = get_user_by_context(info.context)
+        if not ListModel.objects.filter(id=list_id).exists(): 
+            raise exceptions.ObjectDoesNotExist("Provided list does not exist")
 
+        list_db = ListModel.objects.filter(id=list_id).get()
+        list_db.board.check_user(user)
+
+        card = CardModel(list=list_db, title=title, position_in_list=len(list_db.cards))
+        return CreateCard(card=card, success=True)
+        
 
 class EditCard(graphene.Mutation):
     card = graphene.Field(CardType)
     success = graphene.Boolean()
+
 
     class Arguments:
         card_id = graphene.String(required=True)
@@ -69,9 +80,14 @@ class EditCard(graphene.Mutation):
 
         if CardModel.objects.filter(id=card_id).exists():
             card = CardModel.objects.get(id=card_id)
-            listdb = None
+            listdb: ListModel = None
+
             if list_id is not None and ListModel.objects().filter(id=list_id).exists():
                 listdb = ListModel.objects().get(id=list_id)
+            elif list_id is not None:
+                raise exceptions.ObjectDoesNotExist('Provided list does not exist')
+
+            listdb.board.check_user(user)  
             card.edit(title=title,
                       description=description,
                       listdb=listdb,
@@ -82,7 +98,8 @@ class EditCard(graphene.Mutation):
                       )
             card.save()
             return EditCard(card=card, success=True)
-        return EditCard(card=None, success=False)
+        else:
+            raise exceptions.ObjectDoesNotExist("Provided card does not exist")
 
 
 class Mutation(graphene.ObjectType):
