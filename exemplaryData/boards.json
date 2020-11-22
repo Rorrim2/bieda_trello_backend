@@ -5,6 +5,7 @@
     "fields": {
       "title": "first test board",
       "maker_id": 1,
+      "admins": [1],
       "is_closed": false,
       "is_visible": false,
       "description": "it is first testing board with maker_id 1 (John Cache)",
@@ -17,6 +18,7 @@
     "fields": {
       "title": "second test board",
       "maker_id": 2,
+      "admins": [2],
       "is_closed": false,
       "is_visible": false,
       "description": "it is first testing board with maker_id 2 (Spoopy Skeleton)",

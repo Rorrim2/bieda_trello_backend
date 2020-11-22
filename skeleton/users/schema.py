@@ -1,3 +1,4 @@
+from skeleton.utils.jwt_utils import get_user_by_context
 from graphene_django import DjangoObjectType
 import graphene
 from graphql.execution.base import ResolveInfo
@@ -11,21 +12,32 @@ from graphql.error import GraphQLError
 
 class UserType(DjangoObjectType):
 
+    boards = graphene.List('skeleton.boards.schema.BoardType')
+    owns = graphene.List('skeleton.boards.schema.BoardType')
+    manages = graphene.List('skeleton.boards.schema.BoardType')
+
+    @graphene.resolve_only_args
+    def resolve_boards(self):
+        return set(list(self.boards.all()) + list(self.owns.all()) + list(self.manages.all()))
+
+
     class Meta:
         model = UserModel
-        fields = ("id", "name", "last_name", "email")
+        fields = ("id", "name", "last_name", "email", "boards")
         
         interfaces = (graphene.relay.Node, )
 
 
 class Query(graphene.ObjectType):
     users = graphene.List(UserType)
-    user = graphene.Field(UserType)
+    user = graphene.Field(UserType, email=graphene.String(), id=graphene.String())
 
     def resolve_users(self, info: ResolveInfo, **kwargs):
-        print(info.path)
-        print(info.context.headers)
         return UserModel.objects.all()
+
+    def resolve_user(self, info:ResolveInfo, id:str =None, email:str =None, **kwargs):
+        kwargs.update({"id":id} if id is not None else {"email":email})
+        return UserModel.objects.all().filter(**kwargs).get()
 
 
 class LoginUser(graphene.Mutation):
@@ -34,6 +46,7 @@ class LoginUser(graphene.Mutation):
     token = graphene.String()
     refresh_token = graphene.String()
     
+
     class Arguments:
         email = graphene.String(required=True)
         password = graphene.String(required=True)
@@ -64,17 +77,18 @@ class LoginUser(graphene.Mutation):
 class LogoutUser(graphene.Mutation):
     success = graphene.Boolean()
 
+
     class Arguments:
         refresh_token = graphene.String(required=True)
         
     def mutate(self, info: ResolveInfo, refresh_token: str):
-        jwt_token = info.context.headers['Authorization'].replace('Bearer ','')
-        jwt_payload = jwt_utils.decode_token(jwt_token, info.context)
+        user = get_user_by_context(info.context)
         tkn = shortcuts.get_refresh_token(refresh_token, info.context)
         tkn.revoke()
-        user = shortcuts.get_user_by_payload(jwt_payload)
+
         if(user is None):
             raise exceptions.ObjectDoesNotExist("User doesn't exist for computed payload")
+        
         user.jwt_salt = crypto.create_jwt_id()
         user.save(update_fields=["jwt_salt"])
         
@@ -86,6 +100,7 @@ class RegisterUser(graphene.Mutation):
     success = graphene.Boolean()
     token = graphene.String()
     refresh_token = graphene.String()
+
 
     class Arguments:
         email = graphene.String(required=True)
