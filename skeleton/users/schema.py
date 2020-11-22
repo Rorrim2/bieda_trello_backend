@@ -10,7 +10,7 @@ from graphql.error import GraphQLError
 
 
 class UserType(DjangoObjectType):
-    
+
     boards = graphene.List('skeleton.boards.schema.BoardType')
     owns = graphene.List('skeleton.boards.schema.BoardType')
     manages = graphene.List('skeleton.boards.schema.BoardType')
@@ -28,13 +28,14 @@ class UserType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     users = graphene.List(UserType)
-    user = graphene.Field(UserType)
+    user = graphene.Field(UserType, email=graphene.String(), id=graphene.String())
 
     def resolve_users(self, info: ResolveInfo, **kwargs):
-        print(info.path)
-        print(info.context.headers)
         return UserModel.objects.all()
 
+    def resolve_user(self, info:ResolveInfo, id:str =None, email:str =None, **kwargs):
+        kwargs.update({"id":id} if id is not None else {"email":email})
+        return UserModel.objects.all().filter(**kwargs).get()
 
 class LoginUser(graphene.Mutation):
     user = graphene.Field(UserType)
