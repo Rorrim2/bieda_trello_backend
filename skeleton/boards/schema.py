@@ -35,6 +35,7 @@ class BoardType(DjangoObjectType):
 
     class Meta:
         model = BoardModel
+        fields = ("id",  "title","maker", "is_closed", "is_visible", "description", "background","users", "admins", "lists")
         interfaces = (relay.Node, )
 
 
@@ -45,7 +46,7 @@ class Query(graphene.ObjectType):
     def resolve_boards(self, info: ResolveInfo, **kwargs):
         return BoardModel.objects.all()
 
-    def resolve_boards(self, info: ResolveInfo, id: str, **kwargs):
+    def resolve_board(self, info: ResolveInfo, id: str, **kwargs):
         return BoardModel.objects.filter(id=id).get()
 
 
