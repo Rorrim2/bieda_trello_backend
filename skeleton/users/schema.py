@@ -19,6 +19,7 @@ class UserType(DjangoObjectType):
     def resolve_boards(self):
         return set(list(self.boards.all()) + list(self.owns.all()) + list(self.manages.all()))
 
+
     class Meta:
         model = UserModel
         fields = ("id", "name", "last_name", "email", "boards")
@@ -37,12 +38,14 @@ class Query(graphene.ObjectType):
         kwargs.update({"id":id} if id is not None else {"email":email})
         return UserModel.objects.all().filter(**kwargs).get()
 
+
 class LoginUser(graphene.Mutation):
     user = graphene.Field(UserType)
     success = graphene.Boolean()
     token = graphene.String()
     refresh_token = graphene.String()
     
+
     class Arguments:
         email = graphene.String(required=True)
         password = graphene.String(required=True)
@@ -73,6 +76,7 @@ class LoginUser(graphene.Mutation):
 class LogoutUser(graphene.Mutation):
     success = graphene.Boolean()
 
+
     class Arguments:
         refresh_token = graphene.String(required=True)
         
@@ -95,6 +99,7 @@ class RegisterUser(graphene.Mutation):
     success = graphene.Boolean()
     token = graphene.String()
     refresh_token = graphene.String()
+
 
     class Arguments:
         email = graphene.String(required=True)

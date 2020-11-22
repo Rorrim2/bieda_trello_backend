@@ -28,6 +28,7 @@ class BoardType(DjangoObjectType):
     def resolve_admins(self):
         return self.admins.all()
 
+
     class Meta:
         model = BoardModel
         interfaces = (relay.Node, )
@@ -44,6 +45,7 @@ class Query(graphene.ObjectType):
 class CreateNewBoard(graphene.Mutation):
     board = graphene.Field(BoardType)
     success = graphene.Boolean()
+
 
     class Arguments:
         title = graphene.String(required=True)
@@ -70,6 +72,7 @@ class CreateNewBoard(graphene.Mutation):
 
 class CloseBoard(graphene.Mutation):
     board = graphene.Field(BoardType)
+
 
     class Arguments:
         board_id = graphene.String(required=True)
@@ -100,6 +103,7 @@ class ReopenBoard(graphene.Mutation):
     board = graphene.Field(BoardType)
     success = graphene.Boolean()
 
+
     class Arguments:
         board_id = graphene.String(required=True)
 
@@ -127,6 +131,7 @@ class ReopenBoard(graphene.Mutation):
 class PermanentlyDelete(graphene.Mutation):
     board = graphene.Field(BoardType)
     success = graphene.Boolean()
+
 
     class Arguments:
         board_id = graphene.String(required=True)
@@ -156,6 +161,7 @@ class AddUser(graphene.Mutation):
     board = graphene.Field(BoardType)
     success = graphene.Boolean()
     
+
     class Arguments:
         user_id = graphene.String(required=True)
         board_id = graphene.String(required=True)
@@ -196,6 +202,7 @@ class AddAdmin(graphene.Mutation):
     board = graphene.Field(BoardType)
     success = graphene.Boolean()
     
+
     class Arguments:
         admin_id = graphene.String(required=True)
         board_id = graphene.String(required=True)
@@ -231,8 +238,11 @@ class AddAdmin(graphene.Mutation):
         else:
             raise exceptions.ObjectDoesNotExist('Cannot add admin to board that does not exist')
 
+
 class Mutation(graphene.ObjectType):
     createnewboard = CreateNewBoard.Field()
     closeBoard = CloseBoard.Field()
     reopenBoard = ReopenBoard.Field()
     permanentlydelete = PermanentlyDelete.Field()
+    addadmin = AddAdmin.Field()
+    adduser = AddUser.Field()
