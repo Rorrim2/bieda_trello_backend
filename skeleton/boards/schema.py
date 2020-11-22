@@ -1,3 +1,4 @@
+from skeleton.utils.jwt_utils import get_user_by_context
 import graphene
 from graphene.utils.deprecated import deprecated
 from graphene_django import DjangoObjectType
@@ -52,16 +53,12 @@ class CreateNewBoard(graphene.Mutation):
         #email = graphene.String(required=True)
 
     #maker_email is not required, since we obtain all info 'bout user from authentication header (our well-known JWT)
-    def mutate(self, info, title: str):
+    def mutate(self, info: ResolveInfo, title: str):
         success = False
         user = None
         board = None
 
-        if not info.context.user.is_authenticated:
-            raise GraphQLError('User is anonymous')
-
-        token = info.context.headers['Authorization'].replace('Bearer ','')
-        user = shortcuts.get_user_by_token(token, info.context)
+        user = get_user_by_context(info.context)
         board = BoardModel(title=title, background="", maker=user)
         board.admins.add(user)
         board.save()
@@ -77,14 +74,10 @@ class CloseBoard(graphene.Mutation):
     class Arguments:
         board_id = graphene.String(required=True)
 
-    def mutate(self, info, board_id:str):
+    def mutate(self, info: ResolveInfo, board_id:str):
         board = None
 
-        if not info.context.user.is_authenticated:
-            raise GraphQLError('User is anonymous')
-
-        token = info.context.headers['Authorization'].replace('Bearer ','')
-        user = shortcuts.get_user_by_token(token, info.context)
+        user = get_user_by_context(info.context)
 
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)
@@ -107,13 +100,10 @@ class ReopenBoard(graphene.Mutation):
     class Arguments:
         board_id = graphene.String(required=True)
 
-    def mutate(self, info, board_id:str):
+    def mutate(self, info: ResolveInfo, board_id:str):
         board = None
-        if not info.context.user.is_authenticated:
-            raise GraphQLError('User is anonymous')
-
-        token = info.context.headers['Authorization'].replace('Bearer ','')
-        user = shortcuts.get_user_by_token(token, info.context)
+        
+        user = get_user_by_context(info.context)
 
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)
@@ -136,13 +126,10 @@ class PermanentlyDelete(graphene.Mutation):
     class Arguments:
         board_id = graphene.String(required=True)
 
-    def mutate(self, info, board_id:str):
+    def mutate(self, info: ResolveInfo, board_id:str):
         success = False
-        if not info.context.user.is_authenticated:
-            raise GraphQLError('User is anonymous')
         
-        token = info.context.headers['Authorization'].replace('Bearer ','')
-        user = shortcuts.get_user_by_token(token, info.context)
+        user = get_user_by_context(info.context)
 
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)
@@ -169,11 +156,7 @@ class AddUser(graphene.Mutation):
     def mutate(self, info: ResolveInfo, user_id:str, board_id:str):
         success = False
 
-        if not info.context.user.is_authenticated:
-            raise GraphQLError('User is anonymous')
-        
-        token = info.context.headers['Authorization'].replace('Bearer ','')
-        user = shortcuts.get_user_by_token(token, info.context)
+        user = get_user_by_context(info.context)
 
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)
@@ -210,11 +193,7 @@ class AddAdmin(graphene.Mutation):
     def mutate(self, info: ResolveInfo, admin_id:str, board_id:str):
         success = False
 
-        if not info.context.user.is_authenticated:
-            raise GraphQLError('User is anonymous')
-        
-        token = info.context.headers['Authorization'].replace('Bearer ','')
-        user = shortcuts.get_user_by_token(token, info.context)
+        user = get_user_by_context(info.context)
 
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)

@@ -1,3 +1,4 @@
+from skeleton.utils.jwt_utils import get_user_by_context
 from graphene_django import DjangoObjectType
 import graphene
 from graphql.execution.base import ResolveInfo
@@ -81,13 +82,13 @@ class LogoutUser(graphene.Mutation):
         refresh_token = graphene.String(required=True)
         
     def mutate(self, info: ResolveInfo, refresh_token: str):
-        jwt_token = info.context.headers['Authorization'].replace('Bearer ','')
-        jwt_payload = jwt_utils.decode_token(jwt_token, info.context)
+        user = get_user_by_context(info.context)
         tkn = shortcuts.get_refresh_token(refresh_token, info.context)
         tkn.revoke()
-        user = shortcuts.get_user_by_payload(jwt_payload)
+
         if(user is None):
             raise exceptions.ObjectDoesNotExist("User doesn't exist for computed payload")
+        
         user.jwt_salt = crypto.create_jwt_id()
         user.save(update_fields=["jwt_salt"])
         
