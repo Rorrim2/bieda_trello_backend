@@ -72,7 +72,7 @@ class HideList(graphene.Mutation):
         user = get_user_by_context(info.context)
         list = ListModel.objects.get(id=list_id)
         board = list.board
-        board.check_user(user)
+        board.check_user(user, "User is not allowed to modify this board")
         list.hide()
         list.save()
         return HideList(list=list)
@@ -91,7 +91,7 @@ class UnhideList(graphene.Mutation):
         user = get_user_by_context(info.context)
         list = ListModel.objects.get(id=list_id)
         board = list.board
-        board.check_user(user)
+        board.check_user(user, "User is not allowed to modify this board")
         list.unhide()
         list.save()
         return UnhideList(list=list)

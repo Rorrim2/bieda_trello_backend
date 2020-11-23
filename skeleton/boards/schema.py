@@ -35,7 +35,7 @@ class BoardType(DjangoObjectType):
 
     class Meta:
         model = BoardModel
-        fields = ("id",  "title","maker", "is_closed", "is_visible", "description", "background","users", "admins", "lists")
+        fields = ("id", "title","maker", "is_closed", "is_visible", "description", "background","users", "admins", "lists")
         interfaces = (relay.Node, )
 
 
@@ -57,9 +57,7 @@ class CreateNewBoard(graphene.Mutation):
 
     class Arguments:
         title = graphene.String(required=True)
-        #email = graphene.String(required=True)
 
-    #maker_email is not required, since we obtain all info 'bout user from authentication header (our well-known JWT)
     def mutate(self, info: ResolveInfo, title: str):
         success = False
         user = None

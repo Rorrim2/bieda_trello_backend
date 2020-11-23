@@ -33,6 +33,7 @@ class UserManager(BaseUserManager):
     def get_by_natural_key(self, username):
         return self.get(email=username)
     
+    
 class UserModel(models.Model):
 
     last_login = models.DateTimeField(blank=True, null=True)
@@ -112,3 +113,5 @@ class UserModel(models.Model):
     def check_password(self, raw_password: str):
         return crypto.validate_passwd(self.salt, raw_password, self.hashed_pwd)
 
+    def set_unusable_password(self):
+        self.hashed_pwd = crypto.create_unusable_password()

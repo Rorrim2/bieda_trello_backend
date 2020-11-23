@@ -74,6 +74,70 @@ class LoginUser(graphene.Mutation):
         return LoginUser(user=user, success=success, token=token, refresh_token=refreshtkn)
 
 
+class ForgetPasswordRequest(graphene.Mutation):
+    forget_token = graphene.String()
+
+    
+    class Arguments:
+        email = graphene.String(required=True)
+
+    def mutate(self, info: ResolveInfo, email: str):
+        
+        if(info.context.user.is_authenticated):
+            raise exceptions.SuspiciousOperation("User is already logged in, it's kinda sus")
+        
+        if not (UserModel.objects.filter(email=email).exists()):
+            raise exceptions.ObjectDoesNotExist('User does not exist')
+
+        user = UserModel.objects.filter(email=email).get()
+        user.set_unusable_password()
+        user.save()
+        payload = jwt_utils.jwt_payload(user, info.context)
+        token = jwt_utils.jwt_encode(payload)
+
+        return ForgetPasswordRequest(forget_token=token)
+
+
+class SetNewPasswordAfterReset(graphene.Mutation):
+    user = graphene.Field(UserType)
+    success = graphene.Boolean()
+    token = graphene.String()
+    refresh_token = graphene.String()
+
+
+    class Arguments:
+        forget_token = graphene.String(required=True)
+        new_password = graphene.String(required=True)
+
+    def mutate(self, info: ResolveInfo, forget_token: str, new_password: str):
+        
+        if(info.context.user.is_authenticated):
+            raise exceptions.SuspiciousOperation("User is already logged in, it's kinda sus")
+
+        payload = jwt_utils.jwt_decode(forget_token, info.context) 
+        email = payload["email"]
+
+        if not (UserModel.objects.filter(email=email).exists()):
+            raise exceptions.ObjectDoesNotExist('User does not exist')
+
+        user = UserModel.objects.filter(email=email).get()
+
+        if not user.hashed_pwd.startswith('!'): 
+            raise exceptions.SuspiciousOperation("User's password is not marked as unusable, it's kinda sus")
+
+        user.set_salt()
+        user.set_password(new_password)
+        user.jwt_salt = crypto.create_jwt_id()
+        user.last_login = timezone.now()
+        user.save()
+        success = True
+        token = shortcuts.get_token(user)
+        refreshtkn = shortcuts.create_refresh_token(user)
+
+        return SetNewPasswordAfterReset(user=user, token=token, 
+                                        refresh_token=refreshtkn, success=success)
+
+
 class LogoutUser(graphene.Mutation):
     success = graphene.Boolean()
 
@@ -88,7 +152,7 @@ class LogoutUser(graphene.Mutation):
 
         if(user is None):
             raise exceptions.ObjectDoesNotExist("User doesn't exist for computed payload")
-        
+
         user.jwt_salt = crypto.create_jwt_id()
         user.save(update_fields=["jwt_salt"])
         
@@ -121,6 +185,7 @@ class RegisterUser(graphene.Mutation):
             user.set_salt()
             user.set_password(password)
             user.jwt_salt = crypto.create_jwt_id()
+            user.last_login = timezone.now()
             user.save()
             success = True
             token = shortcuts.get_token(user)
@@ -133,3 +198,6 @@ class Mutation(graphene.ObjectType):
     loginuser = LoginUser.Field()
     registeruser = RegisterUser.Field()
     logoutuser = LogoutUser.Field()
+    forgetpasswordrequest = ForgetPasswordRequest.Field()
+    setnewpasswordaftereset = SetNewPasswordAfterReset.Field()
+    
