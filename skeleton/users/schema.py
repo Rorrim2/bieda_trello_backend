@@ -122,7 +122,7 @@ class SetNewPasswordAfterReset(graphene.Mutation):
 
         user = UserModel.objects.filter(email=email).get()
 
-        if not user.hashed_pwd.startswith('!'): 
+        if not user.hashed_pwd.startswith(crypto.UNUSABLE_PASSWORD_PREFIX): 
             raise exceptions.SuspiciousOperation("User's password is not marked as unusable, it's kinda sus")
 
         user.set_salt()
@@ -152,7 +152,10 @@ class LogoutUser(graphene.Mutation):
 
         if(user is None):
             raise exceptions.ObjectDoesNotExist("User doesn't exist for computed payload")
-
+        
+        if user.hashed_pwd.startswith(crypto.UNUSABLE_PASSWORD_PREFIX): 
+            raise exceptions.SuspiciousOperation("User's password is marked as unusable, it's kinda sus")
+        
         user.jwt_salt = crypto.create_jwt_id()
         user.save(update_fields=["jwt_salt"])
         
@@ -200,4 +203,3 @@ class Mutation(graphene.ObjectType):
     logoutuser = LogoutUser.Field()
     forgetpasswordrequest = ForgetPasswordRequest.Field()
     setnewpasswordaftereset = SetNewPasswordAfterReset.Field()
-    
