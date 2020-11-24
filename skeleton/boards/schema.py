@@ -40,8 +40,8 @@ class BoardType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    board = graphene.Field(BoardType)
-    boards = graphene.List(BoardType, id=graphene.String())
+    board = graphene.Field(BoardType, id=graphene.String())
+    boards = graphene.List(BoardType)
 
     def resolve_boards(self, info: ResolveInfo, **kwargs):
         return BoardModel.objects.all()

@@ -1,3 +1,4 @@
+import jwt
 from skeleton.utils.jwt_utils import get_user_by_context
 from graphene_django import DjangoObjectType
 import graphene
@@ -91,9 +92,9 @@ class ForgetPasswordRequest(graphene.Mutation):
 
         user = UserModel.objects.filter(email=email).get()
         user.set_unusable_password()
+        user.jwt_salt = crypto.create_jwt_id()
         user.save()
-        payload = jwt_utils.jwt_payload(user, info.context)
-        token = jwt_utils.jwt_encode(payload)
+        token = jwt_utils.get_token(user, info.context)
 
         return ForgetPasswordRequest(forget_token=token)
 
@@ -114,7 +115,7 @@ class SetNewPasswordAfterReset(graphene.Mutation):
         if(info.context.user.is_authenticated):
             raise exceptions.SuspiciousOperation("User is already logged in, it's kinda sus")
 
-        payload = jwt_utils.jwt_decode(forget_token, info.context) 
+        payload = jwt_utils.decode_token(forget_token, info.context) 
         email = payload["email"]
 
         if not (UserModel.objects.filter(email=email).exists()):
@@ -124,7 +125,10 @@ class SetNewPasswordAfterReset(graphene.Mutation):
 
         if not user.hashed_pwd.startswith(crypto.UNUSABLE_PASSWORD_PREFIX): 
             raise exceptions.SuspiciousOperation("User's password is not marked as unusable, it's kinda sus")
-
+        
+        if not (user.jwt_salt == payload["jti"]):
+            raise jwt.InvalidTokenError("Token expired by user-logout request")
+        
         user.set_salt()
         user.set_password(new_password)
         user.jwt_salt = crypto.create_jwt_id()
@@ -155,7 +159,7 @@ class LogoutUser(graphene.Mutation):
         
         if user.hashed_pwd.startswith(crypto.UNUSABLE_PASSWORD_PREFIX): 
             raise exceptions.SuspiciousOperation("User's password is marked as unusable, it's kinda sus")
-        
+
         user.jwt_salt = crypto.create_jwt_id()
         user.save(update_fields=["jwt_salt"])
         
