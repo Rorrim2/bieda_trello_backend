@@ -51,7 +51,8 @@ class UpdateList(graphene.Mutation):
             list = ListModel.objects.get(id=list_id)
             list.title = title if title is not None else list.title
             list.position_on_board = position_on_board if position_on_board is not None else list.position_on_board
-            return UpdateList(list_id=list_id, title=title, position_on_board=position_on_board)
+            list.save()
+            return UpdateList(list=list)
         return GraphQLError("List with provided id does not exist")
 
 
