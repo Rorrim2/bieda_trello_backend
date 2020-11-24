@@ -44,11 +44,11 @@ class CreateCard(graphene.Mutation):
             raise exceptions.ObjectDoesNotExist("Provided list does not exist")
 
         list_db = ListModel.objects.filter(id=list_id).get()
-        list_db.board.check_user(user)
+        list_db.board.check_user(user, "User is not allowed to modify this board")
 
         card = CardModel(list=list_db, title=title, position_in_list=len(list_db.cards))
         return CreateCard(card=card, success=True)
-        
+
 
 class EditCard(graphene.Mutation):
     card = graphene.Field(CardType)
@@ -87,7 +87,7 @@ class EditCard(graphene.Mutation):
             elif list_id is not None:
                 raise exceptions.ObjectDoesNotExist('Provided list does not exist')
 
-            listdb.board.check_user(user)  
+            listdb.board.check_user(user, "User is not allowed to modify this board")  
             card.edit(title=title,
                       description=description,
                       listdb=listdb,

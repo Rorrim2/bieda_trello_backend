@@ -35,17 +35,18 @@ class BoardType(DjangoObjectType):
 
     class Meta:
         model = BoardModel
+        fields = ("id", "title","maker", "is_closed", "is_visible", "description", "background","users", "admins", "lists")
         interfaces = (relay.Node, )
 
 
 class Query(graphene.ObjectType):
-    board = graphene.Field(BoardType)
-    boards = graphene.List(BoardType, id=graphene.String())
+    board = graphene.Field(BoardType, id=graphene.String())
+    boards = graphene.List(BoardType)
 
     def resolve_boards(self, info: ResolveInfo, **kwargs):
         return BoardModel.objects.all()
 
-    def resolve_boards(self, info: ResolveInfo, id: str, **kwargs):
+    def resolve_board(self, info: ResolveInfo, id: str, **kwargs):
         return BoardModel.objects.filter(id=id).get()
 
 
@@ -56,9 +57,7 @@ class CreateNewBoard(graphene.Mutation):
 
     class Arguments:
         title = graphene.String(required=True)
-        #email = graphene.String(required=True)
 
-    #maker_email is not required, since we obtain all info 'bout user from authentication header (our well-known JWT)
     def mutate(self, info: ResolveInfo, title: str):
         success = False
         user = None
