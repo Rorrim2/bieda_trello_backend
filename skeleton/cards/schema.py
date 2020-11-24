@@ -1,9 +1,11 @@
 import graphene
 from graphene_django import DjangoObjectType
+from graphql import GraphQLError
 from graphql.execution.base import ResolveInfo
 
 from skeleton.cards.model import CardModel
 from skeleton.lists.model import ListModel
+from skeleton.users.model import UserModel
 
 
 class CardType(DjangoObjectType):
@@ -24,7 +26,6 @@ class Query(graphene.ObjectType):
 
 class CreateCard(graphene.Mutation):
     card = graphene.Field(CardType)
-    success = graphene.Boolean()
 
     class Arguments:
         title = graphene.String(required=True)
@@ -37,7 +38,6 @@ class CreateCard(graphene.Mutation):
 
 class EditCard(graphene.Mutation):
     card = graphene.Field(CardType)
-    success = graphene.Boolean()
 
     class Arguments:
         card_id = graphene.String(required=True)
@@ -75,8 +75,8 @@ class EditCard(graphene.Mutation):
                       cover=cover,
                       )
             card.save()
-            return EditCard(card=card, success=True)
-        return EditCard(card=None, success=False)
+            return EditCard(card=card)
+        return GraphQLError("Card with given id does not exist")
 
 
 class Mutation(graphene.ObjectType):
