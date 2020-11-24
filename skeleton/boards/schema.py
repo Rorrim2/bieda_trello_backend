@@ -1,5 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
+from graphql import GraphQLError
 from graphql.execution.base import ResolveInfo
 from graphene import relay
 
@@ -23,24 +24,18 @@ class Query(graphene.ObjectType):
 
 class CreateNewBoard(graphene.Mutation):
     board = graphene.Field(BoardType)
-    success = graphene.Boolean()
 
     class Arguments:
         title = graphene.String(required=True)
         email = graphene.String(required=True)
 
     def mutate(self, info, title: str, maker_email: str):
-        success = False
-        user = None
-        board = None
         if UserModel.objects.filter(email=maker_email).exists():
             user = UserModel.objects.get(email=maker_email)
             board = BoardModel(title=title, background="", maker=user)
             board.save()
-            success = True
-        else:
-            board = BoardModel(title=None, background=None, maker=None)
-        return CreateNewBoard(board=board, success=success)
+            return CreateNewBoard(board=board)
+        return GraphQLError("Board with given id does not exist")
 
 
 class CloseBoard(graphene.Mutation):
@@ -50,45 +45,41 @@ class CloseBoard(graphene.Mutation):
         board_id = graphene.String(required=True)
 
     def mutate(self, info, board_id:str):
-        board = None
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)
             board.close()
             board.save()
-        return CloseBoard(board=board)
+            return CloseBoard(board=board)
+        return GraphQLError("Board with given id does not exist")
 
 
 class ReopenBoard(graphene.Mutation):
     board = graphene.Field(BoardType)
-    success = graphene.Boolean()
 
     class Arguments:
         board_id = graphene.String(required=True)
 
     def mutate(self, info, board_id:str):
-        board = None
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)
             board.reopen()
             board.save()
-        return ReopenBoard(board=board)
+            return ReopenBoard(board=board)
+        return GraphQLError("Board with given id does not exist")
 
 
 class PermanentlyDelete(graphene.Mutation):
     board = graphene.Field(BoardType)
-    success = graphene.Boolean()
 
     class Arguments:
         board_id = graphene.String(required=True)
 
-    def mutate(self, info, board_id:str):
-        success = False
+    def mutate(self, info, board_id: str):
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)
             board.delete()
-            success = True
-            return PermanentlyDelete(board=board, success=success)
-        return PermanentlyDelete(board=None, success=success)
+            return PermanentlyDelete(board=board)
+        return GraphQLError("Board with given id does not exist")
 
 
 class UpdateBoard(graphene.Mutation):
@@ -100,7 +91,7 @@ class UpdateBoard(graphene.Mutation):
         description = graphene.String(required=False)
         background = graphene.String(required=False)
 
-    def mutate(self, info, board_id:str, title:str, description:str, background:str):
+    def mutate(self, info, board_id: str, title: str, description: str, background: str):
         if BoardModel.objects.filter(id=board_id).exists():
             board = BoardModel.objects.get(id=board_id)
             board.title = title if title is not None else board.title
@@ -108,7 +99,7 @@ class UpdateBoard(graphene.Mutation):
             board.background = background if background is not None else board.background
             board.save()
             return UpdateBoard(board=board)
-        return None
+        return GraphQLError("Board with given id does not exist")
 
 
 class Mutation(graphene.ObjectType):
