@@ -59,6 +59,27 @@ class CreateNewList(graphene.Mutation):
             raise exceptions.ObjectDoesNotExist('Provided board does not exist')
 
 
+class UpdateList(graphene.Mutation):
+    list = graphene.Field(ListType)
+
+    class Arguments:
+        list_id = graphene.String(required=True)
+        title = graphene.String(required=False)
+        position_on_board = graphene.String(required=False)
+
+    def mutate(self, info, list_id: str, title: str, position_on_board: int):
+        if ListModel.objects.filter(id=list_id).exists():
+            list = ListModel.objects.get(id=list_id)
+            user = get_user_by_context(info.context)
+            board = list.board
+            board.check_user(user, "User is not allowed to modify this board")
+            list.title = title if title is not None else list.title
+            list.position_on_board = position_on_board if position_on_board is not None else list.position_on_board
+            list.save()
+            return UpdateList(list=list)
+        return exceptions.ObjectDoesNotExist('Provided list does not exist')
+
+
 class HideList(graphene.Mutation):
     list = graphene.Field(ListType)
 
@@ -101,3 +122,4 @@ class Mutation(graphene.ObjectType):
     createnewlist = CreateNewList.Field()
     hidelist = HideList.Field()
     unhidelist = UnhideList.Field()
+    updatelist = UpdateList.Field()
