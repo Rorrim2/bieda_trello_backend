@@ -223,6 +223,31 @@ class AddAdmin(graphene.Mutation):
             raise exceptions.ObjectDoesNotExist('Cannot add admin to board that does not exist')
 
 
+class UpdateBoard(graphene.Mutation):
+    board = graphene.Field(BoardType)
+
+    class Arguments:
+        board_id = graphene.String(required=True)
+        title = graphene.String(required=False)
+        description = graphene.String(required=False)
+        background = graphene.String(required=False)
+
+    def mutate(self, info, board_id: str, title: str, description: str, background: str):
+        if BoardModel.objects.filter(id=board_id).exists():
+            board = BoardModel.objects.get(id=board_id)
+            user = get_user_by_context(info.context)
+
+            board.check_user(user=user, message='User has no permissions to update board')
+
+            board = BoardModel.objects.get(id=board_id)
+            board.title = title if title is not None else board.title
+            board.description = description if description is not None else board.description
+            board.background = background if background is not None else board.background
+            board.save()
+            return UpdateBoard(board=board)
+        return exceptions.ObjectDoesNotExist("Given board does not exist")
+
+
 class Mutation(graphene.ObjectType):
     createnewboard = CreateNewBoard.Field()
     closeBoard = CloseBoard.Field()
