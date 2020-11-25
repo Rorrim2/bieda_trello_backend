@@ -123,7 +123,7 @@ class ReopenBoard(graphene.Mutation):
             raise exceptions.ObjectDoesNotExist('Cannot reopen board that does not exist')
 
 
-class PermanentlyDelete(graphene.Mutation):
+class DeleteBoard(graphene.Mutation):
     board = graphene.Field(BoardType)
     success = graphene.Boolean()
 
@@ -252,6 +252,6 @@ class Mutation(graphene.ObjectType):
     createnewboard = CreateNewBoard.Field()
     closeBoard = CloseBoard.Field()
     reopenBoard = ReopenBoard.Field()
-    permanentlydelete = PermanentlyDelete.Field()
+    deleteboard = DeleteBoard.Field()
     addadmin = AddAdmin.Field()
     adduser = AddUser.Field()
