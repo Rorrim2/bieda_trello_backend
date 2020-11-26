@@ -43,9 +43,11 @@ def decode_token(token: str, context=None):
         __verify_payload(payload)        
     except jwt.ExpiredSignature:
         raise exceptions.JSONWebTokenExpired()
-    except jwt.DecodeError:
+    except jwt.DecodeError as e:
+        print(e)
         raise exceptions.JSONWebTokenError('Error decoding signature')
     except jwt.InvalidTokenError as j:
-        raise exceptions.JSONWebTokenError('Invalid token\n' + j.message)
+        print(j)
+        raise exceptions.JSONWebTokenError('Invalid token')
     return payload
 

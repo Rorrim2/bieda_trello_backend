@@ -26,8 +26,17 @@ SECRET_KEY = 'hi_$qs%7hn0mbrs(kixt$@%*x9#qxg0v7qro#-_a$*+*241qa8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+#IMPORTAAANT!!!!!!!!!!!!!!!!!!!!!!!
+#The 5 constants placed below should be used only in production mode ~ Kamil :) 
+
+#CSRF_COOKIE_SECURE = True
+#SESSION_COOKIE_SECURE = True
+#SECURE_BROWSER_XSS_FILTER = True
+#SECURE_SSL_REDIRECT = True
+#SECURE_HSTS_SECONDS = 600 #value of that parameter should be increased as soon as current value work on heroku
+ 
 ALLOWED_HOSTS = [
-    'bieda-trello-backend.herokuapp.com',
+    'bieda-trello-backend.herokuapp.com', '127.0.0.1'
 ]
 
 AUTH_USER_MODEL = 'skeleton.UserModel'
@@ -72,6 +81,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'skeleton.utils.middleware.JWTAuthenticationMiddleware',
     'skeleton.utils.middleware.UpdateLastActivityMiddleware',
 ]
 
