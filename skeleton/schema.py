@@ -22,4 +22,5 @@ class Mutation(UserMutation, BoardMutation, ListMutation, CardMutation, graphene
     refresh_token = graphql_jwt.Refresh.Field()
     revoke_token = graphql_jwt.Revoke.Field()
 
+
 schema = graphene.Schema(query=Query, mutation=Mutation)

@@ -54,7 +54,6 @@ class EditCard(graphene.Mutation):
     card = graphene.Field(CardType)
     success = graphene.Boolean()
 
-
     class Arguments:
         card_id = graphene.String(required=True)
         title = graphene.String(required=False)
@@ -102,6 +101,29 @@ class EditCard(graphene.Mutation):
             raise exceptions.ObjectDoesNotExist("Provided card does not exist")
 
 
+class DeleteCard(graphene.Mutation):
+    card = graphene.Field(CardType)
+    success = graphene.Boolean()
+
+    class Arguments:
+        card_id = graphene.String(required=True)
+
+    def mutate(self,
+               info: ResolveInfo,
+               card_id: str):
+        user = get_user_by_context(info.context)
+
+        if CardModel.objects.filter(id=card_id).exists():
+            card = CardModel.objects.get(id=card_id)
+            listdb = card.list
+            listdb.board.check_user(user, "User is not allowed to modify this board")
+            card.delete()
+            return DeleteCard(card=card, success=True)
+        else:
+            raise exceptions.ObjectDoesNotExist("Provided card does not exist")
+
+
 class Mutation(graphene.ObjectType):
     createcard = CreateCard.Field()
     editcard = EditCard.Field()
+    deletecard = DeleteCard.Field()

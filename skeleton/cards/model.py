@@ -38,3 +38,12 @@ class CardModel(models.Model):
         self.due_date = self.due_date if due_date is None else due_date
         self.position_in_list = self.position_in_list if position_in_list is None else position_in_list
         self.cover = self.cover if cover is None else cover
+
+    def copy_without_id(self):
+        return CardModel(title=self.title,
+                         description=self.description,
+                         list=self.list,
+                         archived=self.archived,
+                         due_date=self.due_date,
+                         position_in_list=self.position_in_list,
+                         cover=self.cover)
