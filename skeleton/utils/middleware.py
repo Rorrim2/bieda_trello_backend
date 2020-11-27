@@ -30,6 +30,8 @@ def get_user(request: HttpRequest):
     try:
         return shortcuts.get_user_by_token(request.headers["Authorization"].replace("Bearer ", ""))
     except Exception as e:
-        print(e)
+        print(f"get user exc {e}")
+        t = request.headers["Authorization"].replace("Bearer ", "")
+        print(f"jwt was: {t}")
         return AnonymousUser()
 

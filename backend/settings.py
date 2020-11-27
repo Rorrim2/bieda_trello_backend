@@ -70,6 +70,11 @@ GRAPHQL_JWT = {
     'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
     'JWT_DECODE_HANDLER': 'skeleton.utils.jwt_utils.decode_token',
     'JWT_PAYLOAD_HANDLER': 'skeleton.utils.jwt_utils.get_payload',
+    'JWT_CSRF_ROTATION': True,
+    'JWT_HIDE_TOKEN_FIELDS': True,
+    'JWT_COOKIE_NAME': 'JWT',
+    'JWT_REFRESH_TOKEN_COOKIE_NAME': 'JWT-refresh-token',
+    'JWT_COOKIE_SECURE': True,
 }
 
 MIDDLEWARE = [
@@ -154,6 +159,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+CORS_ALLOWED_ORIGINS = [
+    "https://bieda-trello.herokuapp.com",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080"
+]
 CORS_ORIGIN_ALLOW_ALL = True
 import os
 FIXTURE_DIRS = (
