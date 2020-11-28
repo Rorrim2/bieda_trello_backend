@@ -109,7 +109,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
-
+MAX_QUERY_DEPTH = 10
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
