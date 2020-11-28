@@ -1,6 +1,7 @@
 from skeleton.utils.jwt_utils import get_user_by_context
 from django.core import exceptions
 from graphene_django import DjangoObjectType
+from graphql.execution.base import ResolveInfo
 from skeleton.labels.model import LabelModel
 from skeleton.boards.model import BoardModel
 import graphene
@@ -36,10 +37,10 @@ class CreateLabel(graphene.Mutation):
 	def mutate(self, info: ResolveInfo, name: str, color: str, board_id: str):
 		user = get_user_by_context(info.context)
 		if not BoardModel.objects.filter(id=board_id).exists():
-            raise exceptions.ObjectDoesNotExist("Provided board does not exist")
+			raise exceptions.ObjectDoesNotExist("Provided board does not exist")
 
 		board = BoardModel.objects.get(id=board_id)
-        board.check_user(user, "User is not allowed to modify this board")
+		board.check_user(user, "User is not allowed to modify this board")
 
 		label = LabelModel(name=name, color=color, board=board)
 		label.save()
@@ -64,9 +65,9 @@ class EditLabel(graphene.Mutation):
 		board = label.board
 
 		if board is None:
-            raise exceptions.ObjectDoesNotExist("Provided board does not exist")
+			raise exceptions.ObjectDoesNotExist("Provided board does not exist")
 
-        board.check_user(user, "User is not allowed to modify this board")
+		board.check_user(user, "User is not allowed to modify this board")
 
 		label.color = color if color is not None else label.color
 		label.name = name if name is not None else label.name
@@ -90,15 +91,15 @@ class DeleteLabel(graphene.Mutation):
 		board = label.board
 
 		if board is None:
-            raise exceptions.ObjectDoesNotExist("Provided board does not exist")
+			raise exceptions.ObjectDoesNotExist("Provided board does not exist")
 
-        board.check_user(user, "User is not allowed to modify this board")
+			board.check_user(user, "User is not allowed to modify this board")
 
 		label.delete()
 		return DeleteLabel(success=True)
 
 
-class Mutation(graphene.Mutation):
+class Mutation(graphene.ObjectType):
 	createlabel = CreateLabel.Field()
 	editlabel = EditLabel.Field()
 	deletelabel = DeleteLabel.Field()
