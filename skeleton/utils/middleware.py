@@ -74,7 +74,7 @@ class DisableIntrospectionMiddleware(object):
 class QueryDepthValidationMiddleware(object):
 
      def resolve(self, next, root, info: ResolveInfo, **kwargs):
-        if settings.DEBUG != False:
+        if settings.DEBUG == False:
             s = str(info.context.body, 'utf-8').replace("'",'"')
             document_string = json.loads(s)['query']
             gql_backend = GraphQLCoreBackend()
