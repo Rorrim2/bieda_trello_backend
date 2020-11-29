@@ -61,6 +61,8 @@ GRAPHENE = {
     'SCHEMA': 'skeleton.schema.schema', # Where your Graphene schema lives
     'MIDDLEWARE': [
         'graphql_jwt.middleware.JSONWebTokenMiddleware',
+        'skeleton.utils.middleware.DisableIntrospectionMiddleware',
+        'skeleton.utils.middleware.QueryDepthValidationMiddleware',
     ],
 }
 
