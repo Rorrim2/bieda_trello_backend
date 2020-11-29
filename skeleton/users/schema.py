@@ -1,3 +1,4 @@
+from skeleton.jtis.model import JTIModel
 import jwt
 from skeleton.utils.jwt_utils import get_user_by_context
 from graphene_django import DjangoObjectType
@@ -17,8 +18,9 @@ def _register_password(user: UserModel, password: str) -> dict:
     user.save()
     return _login(user)
 
-def _login(user: UserModel):
-    user.jwt_salt = crypto.create_jwt_id()
+def _login(user: UserModel) -> dict:
+    jti = user.jtis.create(value=crypto.create_jwt_id())
+    user.jwt_salt = jti.value
     user.last_login = timezone.now()
     user.save(update_fields=["last_login", "jwt_salt"])
     success = True
@@ -113,8 +115,12 @@ class ForgetPasswordRequest(graphene.Mutation):
 
         user = UserModel.objects.filter(email=email).get()
         user.set_unusable_password()
-        user.jwt_salt = crypto.create_jwt_id()
+
+        jti = user.jtis.create(value=crypto.create_jwt_id())
+        user.jwt_salt = jti.value
+        
         user.save()
+
         token = shortcuts.get_token(user, info.context)
 
         return ForgetPasswordRequest(forget_token=token)
@@ -148,7 +154,7 @@ class SetNewPasswordAfterReset(graphene.Mutation):
         if not user.hashed_pwd.startswith(crypto.UNUSABLE_PASSWORD_PREFIX): 
             raise exceptions.SuspiciousOperation("User's password is not marked as unusable, it's kinda sus")
         
-        if not (user.jwt_salt == payload["jti"]):
+        if not (user.jtis.filter(value=payload["jti"]).exists()):
             raise jwt.InvalidTokenError("Token expired by user-logout request")
 
 
@@ -173,6 +179,10 @@ class LogoutUser(graphene.Mutation):
         if user.hashed_pwd.startswith(crypto.UNUSABLE_PASSWORD_PREFIX): 
             raise exceptions.SuspiciousOperation("User's password is marked as unusable, it's kinda sus")
 
+        payload = jwt_utils.decode_token(
+            info.context.headers['Authorization'].replace('Bearer ','')
+        )
+        user.jtis.remove(value=payload['jti'])
         user.jwt_salt = crypto.create_jwt_id()
         user.save(update_fields=["jwt_salt"])
         

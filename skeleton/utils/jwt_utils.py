@@ -28,6 +28,7 @@ def get_user_by_context(context: WSGIRequest):
 
 def decode_token(token: str, context=None):
     payload = {}
+
     def __verify_payload(payload: Dict):
         user = get_user_by_payload(payload)
         jti = ""
@@ -35,7 +36,7 @@ def decode_token(token: str, context=None):
             jti = payload["jti"]
         except:
             raise jwt.MissingRequiredClaimError("jti")
-        if(user.jwt_salt != jti):
+        if(not user.jtis.filter(value=jti).exists()):
             raise jwt.InvalidTokenError("Token expired by user-logout request")
 
     try:
