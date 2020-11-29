@@ -1,4 +1,4 @@
-from backend.settings import DEBUG
+from backend import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http.request import HttpRequest
 from django.utils import timezone
@@ -6,7 +6,6 @@ from django.utils.functional import SimpleLazyObject
 from ..models import UserModel
 from graphql_jwt import shortcuts
 from graphql.type import definition, schema
-from ...backend import settings
 
 
 INTROSPECTION_TYPES = [ 
@@ -40,11 +39,12 @@ class JWTAuthenticationMiddleware(object):
     def __init__(self, get_response):
         self.get_response = get_response
     def __call__(self, request):
-        request.user = SimpleLazyObject(lambda: get_user(request))
+        if request.user is None:
+            request.user = SimpleLazyObject(lambda: get_user(request))
         return self.get_response(request)
 
 
-class DisableIntrospectionMiddleware:
+class DisableIntrospectionMiddleware(object):
 
     def resolve(self, next, root, info, **kwargs):
         if info.field_name.lower() in INTROSPECTION_TYPES and settings.DEBUG == False:
@@ -62,10 +62,10 @@ class QueryDepthValidationMiddleware(object):
 
 def get_user(request: HttpRequest):
     try:
-        return shortcuts.get_user_by_token(request.headers["Authorization"].replace("Bearer ", ""))
+        return shortcuts.get_user_by_token(request.headers.get("Authorization", "").replace("Bearer ", ""))
     except Exception as e:
         print(f"get user exc {e}")
-        t = request.headers["Authorization"].replace("Bearer ", "")
+        t = request.headers.get("Authorization", "").replace("Bearer ", "")
         print(f"jwt was: {t}")
         return AnonymousUser()
 
