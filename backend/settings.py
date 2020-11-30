@@ -26,8 +26,17 @@ SECRET_KEY = 'hi_$qs%7hn0mbrs(kixt$@%*x9#qxg0v7qro#-_a$*+*241qa8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+#IMPORTAAANT!!!!!!!!!!!!!!!!!!!!!!!
+#The 5 constants placed below should be used only in production mode ~ Kamil :) 
+
+#CSRF_COOKIE_SECURE = True
+#SESSION_COOKIE_SECURE = True
+#SECURE_BROWSER_XSS_FILTER = True
+#SECURE_SSL_REDIRECT = True
+#SECURE_HSTS_SECONDS = 600 #value of that parameter should be increased as soon as current value work on heroku
+ 
 ALLOWED_HOSTS = [
-    'bieda-trello-backend.herokuapp.com',
+    'bieda-trello-backend.herokuapp.com', '127.0.0.1'
 ]
 
 AUTH_USER_MODEL = 'skeleton.UserModel'
@@ -52,6 +61,8 @@ GRAPHENE = {
     'SCHEMA': 'skeleton.schema.schema', # Where your Graphene schema lives
     'MIDDLEWARE': [
         'graphql_jwt.middleware.JSONWebTokenMiddleware',
+        'skeleton.utils.middleware.DisableIntrospectionMiddleware',
+        'skeleton.utils.middleware.QueryDepthValidationMiddleware',
     ],
 }
 
@@ -61,6 +72,10 @@ GRAPHQL_JWT = {
     'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
     'JWT_DECODE_HANDLER': 'skeleton.utils.jwt_utils.decode_token',
     'JWT_PAYLOAD_HANDLER': 'skeleton.utils.jwt_utils.get_payload',
+    'JWT_CSRF_ROTATION': True,
+    'JWT_COOKIE_NAME': 'JWT',
+    'JWT_REFRESH_TOKEN_COOKIE_NAME': 'JWT-refresh-token',
+    'JWT_COOKIE_SECURE': True,
 }
 
 MIDDLEWARE = [
@@ -72,6 +87,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'skeleton.utils.middleware.JWTAuthenticationMiddleware',
     'skeleton.utils.middleware.UpdateLastActivityMiddleware',
 ]
 
@@ -94,7 +110,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
-
+MAX_QUERY_DEPTH = 10
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -144,6 +160,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+CORS_ALLOWED_ORIGINS = [
+    "https://bieda-trello.herokuapp.com",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080"
+]
 CORS_ORIGIN_ALLOW_ALL = True
 import os
 FIXTURE_DIRS = (

@@ -8,7 +8,7 @@ from skeleton.lists.schema import Query as ListQuery
 from skeleton.lists.schema import Mutation as ListMutation
 from skeleton.cards.schema import Query as CardQuery
 from skeleton.cards.schema import Mutation as CardMutation
-
+from skeleton.jtis.schema import Mutation as JTIMutation
 # this file is something like top-level urls.py
 # where we define our "endpoints"
 
@@ -17,7 +17,7 @@ class Query(UserQuery, BoardQuery, ListQuery, CardQuery, graphene.ObjectType):
     pass
 
 
-class Mutation(UserMutation, BoardMutation, ListMutation, CardMutation, graphene.ObjectType):
+class Mutation(UserMutation, BoardMutation, ListMutation, CardMutation, JTIMutation, graphene.ObjectType):
     verify_token = graphql_jwt.Verify.Field()
     refresh_token = graphql_jwt.Refresh.Field()
     revoke_token = graphql_jwt.Revoke.Field()

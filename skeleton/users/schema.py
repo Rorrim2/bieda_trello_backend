@@ -1,3 +1,4 @@
+from skeleton.jtis.model import JTIModel
 import jwt
 from skeleton.utils.jwt_utils import get_user_by_context
 from graphene_django import DjangoObjectType
@@ -10,6 +11,36 @@ from .model import UserModel
 from django.core import exceptions
 from graphql.error import GraphQLError
 
+
+def _register_password(user: UserModel, password: str) -> dict:
+    user.set_salt()
+    user.set_password(password)
+    user.save()
+    return _login(user)
+
+def _login(user: UserModel) -> dict:
+    jti = user.jtis.create(value=crypto.create_jwt_id())
+    user.jwt_salt = jti.value
+    user.last_login = timezone.now()
+    user.save(update_fields=["last_login", "jwt_salt"])
+    success = True
+    token = shortcuts.get_token(user)
+    p = shortcuts.get_payload(token)
+    payload = {
+            "email":p.get("email", ""),
+            "exp":p.get("exp", 0), 
+            "origIat":p.get("origIat", 0)
+        }
+    refreshtkn = shortcuts.create_refresh_token(user)
+
+    return {
+        "success":success,
+        "token":token,
+        "refresh_token": refreshtkn,
+        "user":user,
+        "payload":payload
+    }
+    
 
 class UserType(DjangoObjectType):
 
@@ -46,7 +77,8 @@ class LoginUser(graphene.Mutation):
     success = graphene.Boolean()
     token = graphene.String()
     refresh_token = graphene.String()
-    
+    payload = graphene.types.generic.GenericScalar()
+
 
     class Arguments:
         email = graphene.String(required=True)
@@ -54,25 +86,16 @@ class LoginUser(graphene.Mutation):
 
     def mutate(self, info: ResolveInfo, email: str, password: str):
         user = None
-        success = False
-        token=''
-        refreshtkn = ''
 
-        if UserModel.objects.filter(email=email).exists():
-            user = UserModel.objects.get(email=email)
-            if crypto.validate_passwd(user.salt, password, user.hashed_pwd):
-                user.jwt_salt = crypto.create_jwt_id()
-                success = True
-                user.last_login = timezone.now()
-                token = shortcuts.get_token(user, info.context)
-                refreshtkn = shortcuts.create_refresh_token(user)
-                user.save(update_fields=["last_login", "jwt_salt"])
-            else:
-                raise GraphQLError("Provided password is incorrect")
-        else:
+        if not UserModel.objects.filter(email=email).exists():
             raise GraphQLError("Provided email is incorrect")
 
-        return LoginUser(user=user, success=success, token=token, refresh_token=refreshtkn)
+        user = UserModel.objects.get(email=email)
+
+        if not crypto.validate_passwd(user.salt, password, user.hashed_pwd):
+            raise GraphQLError("Provided password is incorrect")
+       
+        return LoginUser(**_login(user))
 
 
 class ForgetPasswordRequest(graphene.Mutation):
@@ -92,9 +115,13 @@ class ForgetPasswordRequest(graphene.Mutation):
 
         user = UserModel.objects.filter(email=email).get()
         user.set_unusable_password()
-        user.jwt_salt = crypto.create_jwt_id()
+
+        jti = user.jtis.create(value=crypto.create_jwt_id())
+        user.jwt_salt = jti.value
+        
         user.save()
-        token = jwt_utils.get_token(user, info.context)
+
+        token = shortcuts.get_token(user, info.context)
 
         return ForgetPasswordRequest(forget_token=token)
 
@@ -104,6 +131,7 @@ class SetNewPasswordAfterReset(graphene.Mutation):
     success = graphene.Boolean()
     token = graphene.String()
     refresh_token = graphene.String()
+    payload = graphene.types.generic.GenericScalar()
 
 
     class Arguments:
@@ -126,20 +154,11 @@ class SetNewPasswordAfterReset(graphene.Mutation):
         if not user.hashed_pwd.startswith(crypto.UNUSABLE_PASSWORD_PREFIX): 
             raise exceptions.SuspiciousOperation("User's password is not marked as unusable, it's kinda sus")
         
-        if not (user.jwt_salt == payload["jti"]):
+        if not (user.jtis.filter(value=payload["jti"]).exists()):
             raise jwt.InvalidTokenError("Token expired by user-logout request")
-        
-        user.set_salt()
-        user.set_password(new_password)
-        user.jwt_salt = crypto.create_jwt_id()
-        user.last_login = timezone.now()
-        user.save()
-        success = True
-        token = shortcuts.get_token(user)
-        refreshtkn = shortcuts.create_refresh_token(user)
 
-        return SetNewPasswordAfterReset(user=user, token=token, 
-                                        refresh_token=refreshtkn, success=success)
+
+        return SetNewPasswordAfterReset(**_register_password(user, new_password))
 
 
 class LogoutUser(graphene.Mutation):
@@ -160,6 +179,10 @@ class LogoutUser(graphene.Mutation):
         if user.hashed_pwd.startswith(crypto.UNUSABLE_PASSWORD_PREFIX): 
             raise exceptions.SuspiciousOperation("User's password is marked as unusable, it's kinda sus")
 
+        payload = jwt_utils.decode_token(
+            info.context.headers['Authorization'].replace('Bearer ','')
+        )
+        user.jtis.filter(value=payload['jti']).delete()
         user.jwt_salt = crypto.create_jwt_id()
         user.save(update_fields=["jwt_salt"])
         
@@ -171,6 +194,7 @@ class RegisterUser(graphene.Mutation):
     success = graphene.Boolean()
     token = graphene.String()
     refresh_token = graphene.String()
+    payload = graphene.types.generic.GenericScalar()
 
 
     class Arguments:
@@ -181,24 +205,13 @@ class RegisterUser(graphene.Mutation):
 
     def mutate(self, info, email: str, password: str, name: str, last_name: str):
         user = None
-        success = False
-        token = ''
-        refreshtkn = ''
 
         if UserModel.objects.filter(email=email).exists():
             raise GraphQLError(f"Given email {email} is in use")
         else:
             user = UserModel(name=name, last_name=last_name, email=email)
-            user.set_salt()
-            user.set_password(password)
-            user.jwt_salt = crypto.create_jwt_id()
-            user.last_login = timezone.now()
-            user.save()
-            success = True
-            token = shortcuts.get_token(user)
-            refreshtkn = shortcuts.create_refresh_token(user)
         
-        return RegisterUser(user=user, success=success, token=token, refresh_token=refreshtkn)
+        return RegisterUser(**_register_password(user, password))
 
 
 class Mutation(graphene.ObjectType):
@@ -207,3 +220,4 @@ class Mutation(graphene.ObjectType):
     logoutuser = LogoutUser.Field()
     forgetpasswordrequest = ForgetPasswordRequest.Field()
     setnewpasswordaftereset = SetNewPasswordAfterReset.Field()
+
