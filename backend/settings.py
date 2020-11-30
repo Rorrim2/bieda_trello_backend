@@ -73,7 +73,6 @@ GRAPHQL_JWT = {
     'JWT_DECODE_HANDLER': 'skeleton.utils.jwt_utils.decode_token',
     'JWT_PAYLOAD_HANDLER': 'skeleton.utils.jwt_utils.get_payload',
     'JWT_CSRF_ROTATION': True,
-    'JWT_HIDE_TOKEN_FIELDS': True,
     'JWT_COOKIE_NAME': 'JWT',
     'JWT_REFRESH_TOKEN_COOKIE_NAME': 'JWT-refresh-token',
     'JWT_COOKIE_SECURE': True,

@@ -182,7 +182,7 @@ class LogoutUser(graphene.Mutation):
         payload = jwt_utils.decode_token(
             info.context.headers['Authorization'].replace('Bearer ','')
         )
-        user.jtis.remove(value=payload['jti'])
+        user.jtis.filter(value=payload['jti']).delete()
         user.jwt_salt = crypto.create_jwt_id()
         user.save(update_fields=["jwt_salt"])
         
