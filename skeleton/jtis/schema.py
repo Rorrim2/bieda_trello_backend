@@ -14,7 +14,7 @@ class RevokeJTI(graphene.Mutation):
     def mutate(self, info: ResolveInfo, jti: str, user_id: str):
 
         user = UserModel.objects.get(id=user_id)
-        user.jtis.remove(value=jti)
+        user.jtis.filter(value=jti).delete()
         user.save()
 
         return RevokeJTI(success=True)
