@@ -144,7 +144,7 @@ class DeleteBoard(graphene.Mutation):
 
             board.delete()
             success = True
-            return PermanentlyDelete(board=board, success=success)
+            return DeleteBoard(board=board, success=success)
         else:
             raise exceptions.ObjectDoesNotExist('Cannot delete board that does not exist')
 

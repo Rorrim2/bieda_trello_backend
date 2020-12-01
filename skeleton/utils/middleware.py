@@ -1,7 +1,6 @@
 from graphql.error.base import GraphQLError
 from graphql.execution.base import ResolveInfo
 from graphql.backend.core import GraphQLCoreBackend
-from six import raise_from
 from backend import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http.request import HttpRequest

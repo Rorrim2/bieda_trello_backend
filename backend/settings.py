@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import django_heroku
+import os
 
+true = ['true', '1', 't', 'y', 'yes', 'yeah', 'yup', 'certainly', 'uh-huh']
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 print(f"BaseDir: {BASE_DIR}")
@@ -24,17 +26,19 @@ print(f"BaseDir: {BASE_DIR}")
 SECRET_KEY = 'hi_$qs%7hn0mbrs(kixt$@%*x9#qxg0v7qro#-_a$*+*241qa8'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() in true
 
 #IMPORTAAANT!!!!!!!!!!!!!!!!!!!!!!!
 #The 5 constants placed below should be used only in production mode ~ Kamil :) 
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+SECURE_BROWSER_XSS_FILTER = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_HSTS_SECONDS = 0 if DEBUG else 600 #value of that parameter should be increased as soon as current value work on heroku
 
-#CSRF_COOKIE_SECURE = True
-#SESSION_COOKIE_SECURE = True
-#SECURE_BROWSER_XSS_FILTER = True
-#SECURE_SSL_REDIRECT = True
-#SECURE_HSTS_SECONDS = 600 #value of that parameter should be increased as soon as current value work on heroku
- 
+if not DEBUG:
+    print(CSRF_COOKIE_SECURE, SESSION_COOKIE_SECURE, SECURE_BROWSER_XSS_FILTER, SECURE_SSL_REDIRECT, SECURE_HSTS_SECONDS)
+
 ALLOWED_HOSTS = [
     'bieda-trello-backend.herokuapp.com', '127.0.0.1'
 ]
@@ -166,7 +170,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8080"
 ]
 CORS_ORIGIN_ALLOW_ALL = True
-import os
 FIXTURE_DIRS = (
     os.path.join(BASE_DIR, 'exemplaryData\\'), 
     )
