@@ -11,6 +11,7 @@ from graphql_jwt import shortcuts
 from graphql.type import definition, schema, scalars
 from typing import List, Dict
 import json
+import urllib.parse
 from graphql.language.ast import (
     Document,
     FragmentDefinition,
@@ -74,8 +75,14 @@ class QueryDepthValidationMiddleware(object):
 
      def resolve(self, next, root, info: ResolveInfo, **kwargs):
         if settings.DEBUG == False:
+            
             s = str(info.context.body, 'utf-8').replace("'",'"')
-            document_string = json.loads(s)['query']
+            print(s)
+            document_string = ""
+            if s != "":
+                document_string = json.loads(s)['query']
+            else:
+                document_string = urllib.parse.unquote(info.context.META.get("QUERY_STRING", "").split("=")[1])
             gql_backend = GraphQLCoreBackend()
             document = gql_backend.document_from_string(info.schema, document_string)
             validate_depth(document.document_ast)
