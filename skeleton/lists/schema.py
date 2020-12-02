@@ -65,7 +65,7 @@ class UpdateList(graphene.Mutation):
     class Arguments:
         list_id = graphene.String(required=True)
         title = graphene.String(required=False)
-        position_on_board = graphene.String(required=False)
+        position_on_board = graphene.Int(required=False)
 
     def mutate(self, info, list_id: str, title: str, position_on_board: int):
         if ListModel.objects.filter(id=list_id).exists():
