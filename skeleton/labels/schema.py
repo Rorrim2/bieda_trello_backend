@@ -1,7 +1,10 @@
 from skeleton.utils.jwt_utils import get_user_by_context
 from django.core import exceptions
 from graphene_django import DjangoObjectType
+<<<<<<< HEAD
 from graphql.execution.base import ResolveInfo
+=======
+>>>>>>> d7455d820130c12761de80b4aefb776d8d7c9e26
 from skeleton.labels.model import LabelModel
 from skeleton.boards.model import BoardModel
 import graphene
@@ -37,10 +40,17 @@ class CreateLabel(graphene.Mutation):
 	def mutate(self, info: ResolveInfo, name: str, color: str, board_id: str):
 		user = get_user_by_context(info.context)
 		if not BoardModel.objects.filter(id=board_id).exists():
+<<<<<<< HEAD
 			raise exceptions.ObjectDoesNotExist("Provided board does not exist")
 
 		board = BoardModel.objects.get(id=board_id)
 		board.check_user(user, "User is not allowed to modify this board")
+=======
+            raise exceptions.ObjectDoesNotExist("Provided board does not exist")
+
+		board = BoardModel.objects.get(id=board_id)
+        board.check_user(user, "User is not allowed to modify this board")
+>>>>>>> d7455d820130c12761de80b4aefb776d8d7c9e26
 
 		label = LabelModel(name=name, color=color, board=board)
 		label.save()
@@ -56,11 +66,16 @@ class EditLabel(graphene.Mutation):
 		color = graphene.String(required=False)
 		label_id = graphene.String(required=True)
 
+<<<<<<< HEAD
 	def mutate(self, info: ResolveInfo, name: str, color: str, label_id: str):
+=======
+	def mutate(self, info: ResolveInfo, name: str, color: str, lable_id: str):
+>>>>>>> d7455d820130c12761de80b4aefb776d8d7c9e26
 		user = get_user_by_context(info.context)
 		if not LabelModel.objects.filter(id=label_id).exists():
 			raise exceptions.ObjectDoesNotExist("Provided label does not exist")
 
+<<<<<<< HEAD
 		label = LabelModel.objects.get(id=label_id)
 		board = label.board
 
@@ -68,6 +83,15 @@ class EditLabel(graphene.Mutation):
 			raise exceptions.ObjectDoesNotExist("Provided board does not exist")
 
 		board.check_user(user, "User is not allowed to modify this board")
+=======
+		label = LabelModel.objects.get(id=lable_id)
+		board = label.board
+
+		if board is None:
+            raise exceptions.ObjectDoesNotExist("Provided board does not exist")
+
+        board.check_user(user, "User is not allowed to modify this board")
+>>>>>>> d7455d820130c12761de80b4aefb776d8d7c9e26
 
 		label.color = color if color is not None else label.color
 		label.name = name if name is not None else label.name
@@ -91,15 +115,25 @@ class DeleteLabel(graphene.Mutation):
 		board = label.board
 
 		if board is None:
+<<<<<<< HEAD
 			raise exceptions.ObjectDoesNotExist("Provided board does not exist")
 
 		board.check_user(user, "User is not allowed to modify this board")
+=======
+            raise exceptions.ObjectDoesNotExist("Provided board does not exist")
+
+        board.check_user(user, "User is not allowed to modify this board")
+>>>>>>> d7455d820130c12761de80b4aefb776d8d7c9e26
 
 		label.delete()
 		return DeleteLabel(success=True)
 
 
+<<<<<<< HEAD
 class Mutation(graphene.ObjectType):
+=======
+class Mutation(graphene.Mutation):
+>>>>>>> d7455d820130c12761de80b4aefb776d8d7c9e26
 	createlabel = CreateLabel.Field()
 	editlabel = EditLabel.Field()
 	deletelabel = DeleteLabel.Field()
