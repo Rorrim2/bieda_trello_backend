@@ -56,12 +56,12 @@ class EditLabel(graphene.Mutation):
 		color = graphene.String(required=False)
 		label_id = graphene.String(required=True)
 
-	def mutate(self, info: ResolveInfo, name: str, color: str, lable_id: str):
+	def mutate(self, info: ResolveInfo, name: str, color: str, label_id: str):
 		user = get_user_by_context(info.context)
 		if not LabelModel.objects.filter(id=label_id).exists():
 			raise exceptions.ObjectDoesNotExist("Provided label does not exist")
 
-		label = LabelModel.objects.get(id=lable_id)
+		label = LabelModel.objects.get(id=label_id)
 		board = label.board
 
 		if board is None:

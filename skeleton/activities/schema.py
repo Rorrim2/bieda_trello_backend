@@ -1,7 +1,7 @@
 from skeleton.utils.jwt_utils import get_user_by_context
 from django.core import exceptions
 from graphene_django import DjangoObjectType
-from skeleton.activities.model import ActivityModel
+from skeleton.activities.model import ActivityModel, ActivityTypeEnum
 from skeleton.users.model import UserModel
 from skeleton.cards.model import CardModel
 from graphql.execution.base import ResolveInfo
@@ -48,7 +48,7 @@ class CreateActivity(graphene.Mutation):
 			return exceptions.ObjectDoesNotExist("Provided user does not exist")
 		if not CardModel.objects.filter(id=card_id):
 			return exceptions.ObjectDoesNotExist("Provided card does not exist")
-		if not ActivityModel.ActivityType.is_viable_enum(type_val):
+		if not ActivityTypeEnum.is_viable_enum(type_val):
 			return exceptions.FieldError("type_val is not a viable ActivityType value")
 
 		created_on_date = datetime.strptime(created_on, ActivityModel.date_storage_format)
@@ -61,7 +61,7 @@ class CreateActivity(graphene.Mutation):
 			user=user, 
 			created_on=creation_date, 
 			content=content, 
-			type=ActivityType.vals_tuple(type_val),
+			type=ActivityTypeEnum.vals_tuple(type_val),
 			)
 		activity.save()
 		return CreateActivity(activity=activity)
