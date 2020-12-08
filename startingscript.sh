@@ -14,3 +14,5 @@ python manage.py loaddata exemplaryData/users.json -v 3
 python manage.py loaddata exemplaryData/boards.json
 python manage.py loaddata exemplaryData/lists.json
 python manage.py loaddata exemplaryData/cards.json
+python manage.py loaddata exemplaryData/labels.json
+python manage.py loaddata exemplaryData/activities.json

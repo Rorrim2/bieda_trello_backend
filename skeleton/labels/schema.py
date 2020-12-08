@@ -93,7 +93,7 @@ class DeleteLabel(graphene.Mutation):
 		if board is None:
 			raise exceptions.ObjectDoesNotExist("Provided board does not exist")
 
-			board.check_user(user, "User is not allowed to modify this board")
+		board.check_user(user, "User is not allowed to modify this board")
 
 		label.delete()
 		return DeleteLabel(success=True)

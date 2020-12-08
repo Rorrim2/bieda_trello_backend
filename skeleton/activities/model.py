@@ -16,6 +16,7 @@
 
 from django.db import models
 from skeleton.cards.model import CardModel
+from skeleton.users.model import UserModel
 from datetime import datetime
 from django.core import exceptions
 
@@ -55,10 +56,10 @@ class ActivityTypeEnum():
 		return exceptions.FieldError("type_val is not a viable ActivityTypeEnum value")
 
 class ActivityModel(models.Model):
-	date_storage_format = '%d:%m%y:%H:%M:%S'
+	date_storage_format = 'YYYY-MM-DD HH:MM:ss[TZ]'
 
 	card = models.ForeignKey(to=CardModel, on_delete=models.CASCADE, related_name='activities')
-	user = models.ForeignKey(to=CardModel, on_delete=models.CASCADE)
+	user = models.ForeignKey(to=UserModel, on_delete=models.CASCADE)
 	created_on = models.DateTimeField(default=datetime.now)
 	content = models.CharField(max_length=1024)
 	type = models.IntegerField(choices=ActivityTypeEnum.TYPES)

@@ -34,16 +34,20 @@ class CreateActivity(graphene.Mutation):
 	class Arguments:
 		user_id = graphene.String(required=True)
 		card_id = graphene.String(required=True)
-		type_val = graphene.Int(required=False)
 		content = graphene.String(required=True)
+		type_val = graphene.Int(required=False)
 		created_on = graphene.String(required=False)
 
 	def mutate(self, 
+				info: ResolveInfo,
 				user_id: str, 
 				card_id: str, 
-				type_val: int, 
 				content: str, 
-				created_on: str):
+				**kwargs):
+		user = get_user_by_context(info.context)
+		type_val = kwargs.get('type_val', None)
+		created_on = kwargs.get('created_on', None)
+		type_val = type_val if type_val is not None else ActivityTypeEnum.ACTIVITY_LOG_VAL
 		if not UserModel.objects.filter(id=user_id).exists():
 			return exceptions.ObjectDoesNotExist("Provided user does not exist")
 		if not CardModel.objects.filter(id=card_id):
@@ -51,18 +55,25 @@ class CreateActivity(graphene.Mutation):
 		if not ActivityTypeEnum.is_viable_enum(type_val):
 			return exceptions.FieldError("type_val is not a viable ActivityType value")
 
-		created_on_date = datetime.strptime(created_on, ActivityModel.date_storage_format)
 
 		card = CardModel.objects.get(id=card_id)
-		user = CardModel.objects.get(id=user_id)
+		user = UserModel.objects.get(id=user_id)
 		card.list.board.check_user(user, "User is not allowed to modify this board")
-		creation_date = created_on_date if created_on_date is not None else datetime.now()
-		activity = ActivityModel(card=card, 
-			user=user, 
-			created_on=creation_date, 
-			content=content, 
-			type=ActivityTypeEnum.vals_tuple(type_val),
-			)
+		if created_on is None:
+			activity = ActivityModel(
+				card=card, 
+				user=user, 
+				content=content, 
+				type=type_val,
+				)
+		else:
+			activity = ActivityModel(
+				card=card, 
+				user=user, 
+				content=content, 
+				created_on=created_on,
+				type=type_val,
+				)
 		activity.save()
 		return CreateActivity(activity=activity)
 
@@ -76,14 +87,15 @@ class EditActivity(graphene.Mutation):
 		activity_id = graphene.String(required=True)
 		content = graphene.String(required=True)
 
-	def mutate(self, user_id: str, card_id: str, activity_id: str, content: str):
+	def mutate(self, info: ResolveInfo, user_id: str, card_id: str, activity_id: str, content: str):
+		user = get_user_by_context(info.context)
 		if not UserModel.objects.filter(id=user_id).exists():
 			return exceptions.ObjectDoesNotExist("Provided user does not exist")
 		if not CardModel.objects.filter(id=card_id).exists():
 			return exceptions.ObjectDoesNotExist("Provided card does not exist")
 
 		card = CardModel.objects.get(id=card_id)
-		user = CardModel.objects.get(id=user_id)
+		user = UserModel.objects.get(id=user_id)
 		card.list.board.check_user(user, "User is not allowed to modify this board")
 
 		activity = ActivityModel.objects.get(id=activity_id)
