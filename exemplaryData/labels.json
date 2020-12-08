@@ -1,0 +1,56 @@
+[
+	{
+		"model": "skeleton.labelmodel",
+		"pk": 1,
+		"fields": {
+			"name": "lebal tset",
+			"board_id": 1,
+			"color": "red"
+		}
+	},
+	{
+		"model": "skeleton.labelmodel",
+		"pk": 2,
+		"fields": {
+			"name": "lebal tset",
+			"board_id": 1,
+			"color": "green"
+		}
+	},
+	{
+		"model": "skeleton.labelmodel",
+		"pk": 3,
+		"fields": {
+			"name": "and another one",
+			"board_id": 1,
+			"color": "blue"
+		}
+	},
+	{
+		"model": "skeleton.labelmodel",
+		"pk": 4,
+		"fields": {
+			"name": "charmander",
+			"board_id": 2,
+			"color": "red"
+		}
+	},
+	{
+		"model": "skeleton.labelmodel",
+		"pk": 5,
+		"fields": {
+			"name": "bulbasaur",
+			"board_id": 2,
+			"color": "green"
+		}
+	},
+	{
+		"model": "skeleton.labelmodel",
+		"pk": 6,
+		"fields": {
+			"name": "squirtle",
+			"board_id": 2,
+			"color": "blue"
+		}
+	}
+]
