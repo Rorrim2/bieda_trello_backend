@@ -1,4 +1,3 @@
-from skeleton.jtis.model import JTIModel
 import jwt
 from skeleton.utils.jwt_utils import get_user_by_context
 from graphene_django import DjangoObjectType
@@ -6,11 +5,10 @@ import graphene
 from graphql.execution.base import ResolveInfo
 from graphql_jwt import shortcuts
 from django.utils import timezone
-from ..utils import crypto, jwt_utils
+from ..utils import crypto, jwt_utils, map_id
 from .model import UserModel
 from django.core import exceptions
 from graphql.error import GraphQLError
-
 
 def _register_password(user: UserModel, password: str) -> dict:
     user.set_salt()
@@ -68,7 +66,7 @@ class Query(graphene.ObjectType):
         return UserModel.objects.all()
 
     def resolve_user(self, info:ResolveInfo, id:str =None, email:str =None, **kwargs):
-        kwargs.update({"id":id} if id is not None else {"email":email})
+        kwargs.update({"id":map_id(id)} if id is not None else {"email":email})
         return UserModel.objects.all().filter(**kwargs).get()
 
 

@@ -1,3 +1,4 @@
+from skeleton.utils import map_id
 from skeleton.utils.jwt_utils import get_user_by_context
 import graphene
 from graphene_django import DjangoObjectType
@@ -29,7 +30,7 @@ class Query(graphene.ObjectType):
         return ListModel.objects.all()
 
     def resolve_list(self, info: ResolveInfo, id: str, **kwargs):
-        return ListModel.objects.filter(id=id).get()
+        return ListModel.objects.filter(id=map_id(id)).get()
 
 
 class CreateNewList(graphene.Mutation):
@@ -47,8 +48,8 @@ class CreateNewList(graphene.Mutation):
 
         user = get_user_by_context(info.context)
 
-        if BoardModel.objects.filter(id=board_id).exists():
-            board = BoardModel.objects.get(id=board_id)
+        if BoardModel.objects.filter(id=map_id(board_id)).exists():
+            board = BoardModel.objects.get(id=map_id(board_id))
             board.check_user(user, "User is not allowed to modify this board")
 
             list = ListModel(title=title, board=board, position_on_board=position_on_board)
@@ -68,8 +69,8 @@ class UpdateList(graphene.Mutation):
         position_on_board = graphene.Int(required=False)
 
     def mutate(self, info, list_id: str, title: str, position_on_board: int):
-        if ListModel.objects.filter(id=list_id).exists():
-            list = ListModel.objects.get(id=list_id)
+        if ListModel.objects.filter(id=map_id(list_id)).exists():
+            list = ListModel.objects.get(id=map_id(list_id))
             user = get_user_by_context(info.context)
             board = list.board
             board.check_user(user, "User is not allowed to modify this board")
@@ -87,11 +88,11 @@ class HideList(graphene.Mutation):
         list_id = graphene.String(required=True)
 
     def mutate(self, info: ResolveInfo, list_id: str):
-        if not ListModel.objects.filter(id=list_id).exists():
+        if not ListModel.objects.filter(id=map_id(list_id)).exists():
             raise exceptions.ObjectDoesNotExist('Provided list does not exist')
 
         user = get_user_by_context(info.context)
-        list = ListModel.objects.get(id=list_id)
+        list = ListModel.objects.get(id=map_id(list_id))
         board = list.board
         board.check_user(user, "User is not allowed to modify this board")
         list.hide()
@@ -106,11 +107,11 @@ class UnhideList(graphene.Mutation):
         list_id = graphene.String(required=True)
 
     def mutate(self, info, list_id: str):
-        if not ListModel.objects.filter(id=list_id).exists():
+        if not ListModel.objects.filter(id=map_id(list_id)).exists():
             raise exceptions.ObjectDoesNotExist('Provided list does not exist')
 
         user = get_user_by_context(info.context)
-        list = ListModel.objects.get(id=list_id)
+        list = ListModel.objects.get(id=map_id(list_id))
         board = list.board
         board.check_user(user, "User is not allowed to modify this board")
         list.unhide()
@@ -127,17 +128,17 @@ class MoveList(graphene.Mutation):
         new_position_on_board = graphene.Int(required=True)
 
     def mutate(self, info, list_id: str, new_board_id: str, new_position_on_board: int):
-        if not ListModel.objects.filter(id=list_id).exists():
+        if not ListModel.objects.filter(id=map_id(list_id)).exists():
             raise exceptions.ObjectDoesNotExist('Provided list does not exist')
-        if not BoardModel.objects.filter(id=new_board_id).exists():
+        if not BoardModel.objects.filter(id=map_id(new_board_id)).exists():
             raise exceptions.ObjectDoesNotExist('Providede new board does not exist')
 
         user = get_user_by_context(info.context)
-        listModel = ListModel.objects.get(id=list_id)
+        listModel = ListModel.objects.get(id=map_id(list_id))
         old_board = listModel.board
         old_board.check_user(user, "User is not allowed to modify old board")
 
-        new_board = BoardModel.objects.get(id=new_board_id)
+        new_board = BoardModel.objects.get(id=map_id(new_board_id))
         new_board.check_user(user, "User is not allowed to modify new board")
 
         # update positions of other lists on old board
@@ -171,11 +172,11 @@ class CopyList(graphene.Mutation):
         list_id = graphene.String(required=True)
 
     def mutate(self, info, list_id: str):
-        if not ListModel.objects.filter(id=list_id).exists():
+        if not ListModel.objects.filter(id=map_id(list_id)).exists():
             raise exceptions.ObjectDoesNotExist('Provided list does not exist')
 
         user = get_user_by_context(info.context)
-        originalList = ListModel.objects.get(id=list_id)
+        originalList = ListModel.objects.get(id=map_id(list_id))
         board = originalList.board
         board.check_user(user, "User is not allowed to modify old board")
 
