@@ -6,10 +6,28 @@ from typing import Dict
 from skeleton.models import UserModel
 from django.core.handlers.wsgi import WSGIRequest
 from graphql_jwt.shortcuts import get_user_by_token
+import urllib
+import json
+from ..utils import crypto
+from django.utils import timezone
 
 
-def get_payload(user: UserModel, context=None):
+def get_payload(user: UserModel, context: WSGIRequest=None):
     payload = jwt_payload(user, context)
+    if context is not None:
+        print("Context is oki doki")
+        s = str(context.body, 'utf-8').replace("'",'"')
+        print(s)
+        document_string = ""
+        if s != "":
+            document_string = str(json.loads(s)['query'])
+        else:
+            document_string = str(urllib.parse.unquote(context.META.get("QUERY_STRING", "").split("=")[1]))
+        if("refreshToken" in document_string):
+            jti = user.jtis.create(value=crypto.create_jwt_id())
+            user.jwt_salt = jti.value
+            user.last_login = timezone.now()
+            user.save(update_fields=["last_login", "jwt_salt"])
     payload["jti"] = user.jwt_salt
     return payload
 
