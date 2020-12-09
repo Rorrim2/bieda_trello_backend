@@ -1,3 +1,4 @@
+from skeleton.utils import map_id
 from skeleton.utils.jwt_utils import get_user_by_context
 import graphene
 from graphene_django import DjangoObjectType
@@ -47,7 +48,7 @@ class Query(graphene.ObjectType):
         return BoardModel.objects.all()
 
     def resolve_board(self, info: ResolveInfo, id: str, **kwargs):
-        return BoardModel.objects.filter(id=id).get()
+        return BoardModel.objects.filter(id=map_id(id)).get()
 
 
 class CreateNewBoard(graphene.Mutation):
@@ -84,8 +85,8 @@ class CloseBoard(graphene.Mutation):
 
         user = get_user_by_context(info.context)
 
-        if BoardModel.objects.filter(id=board_id).exists():
-            board = BoardModel.objects.get(id=board_id)
+        if BoardModel.objects.filter(id=map_id(board_id)).exists():
+            board = BoardModel.objects.get(id=map_id(board_id))
 
             if(user not in board.admins):
                 raise exceptions.PermissionDenied('User has no permissions to close the board')
@@ -110,8 +111,8 @@ class ReopenBoard(graphene.Mutation):
         
         user = get_user_by_context(info.context)
 
-        if BoardModel.objects.filter(id=board_id).exists():
-            board = BoardModel.objects.get(id=board_id)
+        if BoardModel.objects.filter(id=map_id(board_id)).exists():
+            board = BoardModel.objects.get(id=map_id(board_id))
 
             if(user not in board.admins):
                 raise exceptions.PermissionDenied('User has no permissions to reopen the board')
@@ -136,8 +137,8 @@ class DeleteBoard(graphene.Mutation):
         
         user = get_user_by_context(info.context)
 
-        if BoardModel.objects.filter(id=board_id).exists():
-            board = BoardModel.objects.get(id=board_id)
+        if BoardModel.objects.filter(id=map_id(board_id)).exists():
+            board = BoardModel.objects.get(id=map_id(board_id))
 
             if(user not in board.admins):
                 raise exceptions.PermissionDenied('User has no permissions to permanently delete the board')
@@ -163,13 +164,13 @@ class AddUser(graphene.Mutation):
 
         user = get_user_by_context(info.context)
 
-        if BoardModel.objects.filter(id=board_id).exists():
-            board = BoardModel.objects.get(id=board_id)
+        if BoardModel.objects.filter(id=map_id(board_id)).exists():
+            board = BoardModel.objects.get(id=map_id(board_id))
             
-            if not UserModel.objects.filter(id=user_id).exists():
+            if not UserModel.objects.filter(id=map_id(user_id)).exists():
                 raise exceptions.ObjectDoesNotExist('Cannot add user, that does not exist')
 
-            would_be_user = UserModel.objects.get(id=user_id)
+            would_be_user = UserModel.objects.get(id=map_id(user_id))
 
             if(user not in board.admins):
                 raise exceptions.PermissionDenied('User has no permissions to give somebody access to board')
@@ -200,13 +201,13 @@ class AddAdmin(graphene.Mutation):
 
         user = get_user_by_context(info.context)
 
-        if BoardModel.objects.filter(id=board_id).exists():
-            board = BoardModel.objects.get(id=board_id)
+        if BoardModel.objects.filter(id=map_id(board_id)).exists():
+            board = BoardModel.objects.get(id=map_id(board_id))
             
-            if not UserModel.objects.filter(id=admin_id).exists():
+            if not UserModel.objects.filter(id=map_id(admin_id)).exists():
                 raise exceptions.ObjectDoesNotExist('Cannot entitle user to become admin, that does not exist')
 
-            would_be_admin = UserModel.objects.get(id=admin_id)
+            would_be_admin = UserModel.objects.get(id=map_id(admin_id))
 
             if(user not in board.admins):
                 raise exceptions.PermissionDenied('User has no permissions to give somebody administrative privileges')
@@ -233,13 +234,13 @@ class UpdateBoard(graphene.Mutation):
         background = graphene.String(required=False)
 
     def mutate(self, info, board_id: str, title: str, description: str, background: str):
-        if BoardModel.objects.filter(id=board_id).exists():
-            board = BoardModel.objects.get(id=board_id)
+        if BoardModel.objects.filter(id=map_id(board_id)).exists():
+            board = BoardModel.objects.get(id=map_id(board_id))
             user = get_user_by_context(info.context)
 
             board.check_user(user=user, message='User has no permissions to update board')
 
-            board = BoardModel.objects.get(id=board_id)
+            board = BoardModel.objects.get(id=map_id(board_id))
             board.title = title if title is not None else board.title
             board.description = description if description is not None else board.description
             board.background = background if background is not None else board.background

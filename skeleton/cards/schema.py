@@ -1,3 +1,4 @@
+from skeleton.utils import map_id
 from skeleton.utils.jwt_utils import get_user_by_context
 import graphene
 from graphene_django import DjangoObjectType
@@ -25,7 +26,7 @@ class Query(graphene.ObjectType):
 
     def resolve_card(self, info: ResolveInfo, **kwargs):
         print(info.path)
-        return CardModel.objects.filter(id=id).get()
+        return CardModel.objects.filter(id=map_id(id)).get()
 
 
 class CreateCard(graphene.Mutation):
@@ -40,10 +41,10 @@ class CreateCard(graphene.Mutation):
 
     def mutate(self, info: ResolveInfo, title: str, list_id: str):
         user = get_user_by_context(info.context)
-        if not ListModel.objects.filter(id=list_id).exists(): 
+        if not ListModel.objects.filter(id=map_id(list_id)).exists(): 
             raise exceptions.ObjectDoesNotExist("Provided list does not exist")
 
-        list_db = ListModel.objects.filter(id=list_id).get()
+        list_db = ListModel.objects.filter(id=map_id(list_id)).get()
         list_db.board.check_user(user, "User is not allowed to modify this board")
 
         card = CardModel(list=list_db, title=title, position_in_list=len(list_db.cards))
@@ -77,12 +78,12 @@ class EditCard(graphene.Mutation):
         position_in_list = kwargs.get('position_in_list', None)
         cover = kwargs.get('cover', None)
 
-        if CardModel.objects.filter(id=card_id).exists():
-            card = CardModel.objects.get(id=card_id)
+        if CardModel.objects.filter(id=map_id(card_id)).exists():
+            card = CardModel.objects.get(id=map_id(card_id))
             listdb: ListModel = None
 
-            if list_id is not None and ListModel.objects().filter(id=list_id).exists():
-                listdb = ListModel.objects().get(id=list_id)
+            if list_id is not None and ListModel.objects().filter(id=map_id(list_id)).exists():
+                listdb = ListModel.objects().get(id=map_id(list_id))
             elif list_id is not None:
                 raise exceptions.ObjectDoesNotExist('Provided list does not exist')
 
@@ -113,8 +114,8 @@ class DeleteCard(graphene.Mutation):
                card_id: str):
         user = get_user_by_context(info.context)
 
-        if CardModel.objects.filter(id=card_id).exists():
-            card = CardModel.objects.get(id=card_id)
+        if CardModel.objects.filter(id=map_id(card_id)).exists():
+            card = CardModel.objects.get(id=map_id(card_id))
             listdb = card.list
             listdb.board.check_user(user, "User is not allowed to modify this board")
             card.delete()

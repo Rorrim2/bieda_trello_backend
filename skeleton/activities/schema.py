@@ -1,3 +1,4 @@
+from skeleton.utils import map_id
 from skeleton.utils.jwt_utils import get_user_by_context
 from django.core import exceptions
 from graphene_django import DjangoObjectType
@@ -25,7 +26,7 @@ class Query(graphene.ObjectType):
 
 	def resolve_activity(self, info: ResolveInfo, **kwargs):
 		print(info.path)
-		return ActivityModel.objects.filter(id=id).get()
+		return ActivityModel.objects.filter(id=map_id(id)).get()
 
 
 class CreateActivity(graphene.Mutation):
@@ -48,16 +49,16 @@ class CreateActivity(graphene.Mutation):
 		type_val = kwargs.get('type_val', None)
 		created_on = kwargs.get('created_on', None)
 		type_val = type_val if type_val is not None else ActivityTypeEnum.ACTIVITY_LOG_VAL
-		if not UserModel.objects.filter(id=user_id).exists():
+		if not UserModel.objects.filter(id=map_id(user_id)).exists():
 			return exceptions.ObjectDoesNotExist("Provided user does not exist")
-		if not CardModel.objects.filter(id=card_id):
+		if not CardModel.objects.filter(id=map_id(card_id)):
 			return exceptions.ObjectDoesNotExist("Provided card does not exist")
 		if not ActivityTypeEnum.is_viable_enum(type_val):
 			return exceptions.FieldError("type_val is not a viable ActivityType value")
 
 
-		card = CardModel.objects.get(id=card_id)
-		user = UserModel.objects.get(id=user_id)
+		card = CardModel.objects.get(id=map_id(card_id))
+		user = UserModel.objects.get(id=map_id(user_id))
 		card.list.board.check_user(user, "User is not allowed to modify this board")
 		if created_on is None:
 			activity = ActivityModel(
@@ -89,16 +90,16 @@ class EditActivity(graphene.Mutation):
 
 	def mutate(self, info: ResolveInfo, user_id: str, card_id: str, activity_id: str, content: str):
 		user = get_user_by_context(info.context)
-		if not UserModel.objects.filter(id=user_id).exists():
+		if not UserModel.objects.filter(id=map_id(user_id)).exists():
 			return exceptions.ObjectDoesNotExist("Provided user does not exist")
-		if not CardModel.objects.filter(id=card_id).exists():
+		if not CardModel.objects.filter(id=map_id(card_id)).exists():
 			return exceptions.ObjectDoesNotExist("Provided card does not exist")
 
-		card = CardModel.objects.get(id=card_id)
-		user = UserModel.objects.get(id=user_id)
+		card = CardModel.objects.get(id=map_id(card_id))
+		user = UserModel.objects.get(id=map_id(user_id))
 		card.list.board.check_user(user, "User is not allowed to modify this board")
 
-		activity = ActivityModel.objects.get(id=activity_id)
+		activity = ActivityModel.objects.get(id=map_id(activity_id))
 		activity.content = content
 		activity.save()
 		return EditActivity(activity=activity)
