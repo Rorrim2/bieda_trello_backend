@@ -1,3 +1,4 @@
+from skeleton.utils import map_id
 from skeleton.utils.jwt_utils import get_user_by_context
 from django.core import exceptions
 from graphene_django import DjangoObjectType
@@ -23,7 +24,7 @@ class Query(graphene.ObjectType):
 
 	def resolve_label(self, info: ResolveInfo, **kwargs):
 		print(info.path)
-		return LabelModel.objects.filter(id=id).get()
+		return LabelModel.objects.filter(id=map_id(id)).get()
 
 
 class CreateLabel(graphene.Mutation):
@@ -36,10 +37,10 @@ class CreateLabel(graphene.Mutation):
 
 	def mutate(self, info: ResolveInfo, name: str, color: str, board_id: str):
 		user = get_user_by_context(info.context)
-		if not BoardModel.objects.filter(id=board_id).exists():
+		if not BoardModel.objects.filter(id=map_id(board_id)).exists():
 			raise exceptions.ObjectDoesNotExist("Provided board does not exist")
 
-		board = BoardModel.objects.get(id=board_id)
+		board = BoardModel.objects.get(id=map_id(board_id))
 		board.check_user(user, "User is not allowed to modify this board")
 
 		label = LabelModel(name=name, color=color, board=board)
@@ -58,10 +59,10 @@ class EditLabel(graphene.Mutation):
 
 	def mutate(self, info: ResolveInfo, name: str, color: str, label_id: str):
 		user = get_user_by_context(info.context)
-		if not LabelModel.objects.filter(id=label_id).exists():
+		if not LabelModel.objects.filter(id=map_id(label_id)).exists():
 			raise exceptions.ObjectDoesNotExist("Provided label does not exist")
 
-		label = LabelModel.objects.get(id=label_id)
+		label = LabelModel.objects.get(id=map_id(label_id))
 		board = label.board
 
 		if board is None:
@@ -84,10 +85,10 @@ class DeleteLabel(graphene.Mutation):
 
 	def mutate(self, info: ResolveInfo, label_id: str):
 		user = get_user_by_context(info.context)
-		if not LabelModel.objects.filter(id=label_id).exists():
+		if not LabelModel.objects.filter(id=map_id(label_id)).exists():
 			raise exceptions.ObjectDoesNotExist("Provided label does not exist")
 		
-		label = LabelModel.objects.get(id=label_id)
+		label = LabelModel.objects.get(id=map_id(label_id))
 		board = label.board
 
 		if board is None:
