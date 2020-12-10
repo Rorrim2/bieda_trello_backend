@@ -21,12 +21,18 @@ class LabelType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-	labels = graphene.List(LabelType)
+	labels = graphene.List(LabelType, boardId=graphene.String())
 	label = graphene.Field(LabelType, id=graphene.String())
 
-	def resolve_labels(self, info: ResolveInfo, **kwargs):
+	def resolve_labels(self, info: ResolveInfo, boardId: str, **kwargs):
 		print(info.path)
-		return LabelModel.objects.all()
+
+		if not BoardModel.objects.filter(id=map_id(boardId)).exists():
+			raise exceptions.ObjectDoesNotExist("Provided board does not exist")
+
+		board = BoardModel.objects.get(id=boardId)
+
+		return LabelModel.objects.filter(board=board).all()
 
 	def resolve_label(self, info: ResolveInfo, **kwargs):
 		print(info.path)

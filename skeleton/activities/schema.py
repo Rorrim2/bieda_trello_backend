@@ -19,14 +19,30 @@ class ActivityType(DjangoObjectType):
 class Query(graphene.ObjectType):
 	activitys = graphene.List(ActivityType)
 	activity = graphene.Field(ActivityType, id=graphene.String())
+	activitysByUser = graphene.List(ActivityType, userId=graphene.String())
+	activitysByCard = graphene.List(ActivityType, cardId=graphene.String())
 
 	def resolve_activitys(self, info: ResolveInfo, **kwargs):
 		print(info.path)
 		return ActivityModel.objects.all()
 
-	def resolve_activity(self, info: ResolveInfo, **kwargs):
+	def resolve_activity(self, info: ResolveInfo, id: str, **kwargs):
 		print(info.path)
 		return ActivityModel.objects.filter(id=map_id(id)).get()
+
+	def resolve_activitysByUser(self, info: ResolveInfo, userId: str, **kwargs):
+		if not UserModel.objects.filter(id=map_id(userId)).exists():
+			return exceptions.ObjectDoesNotExist("Provided user does not exist")
+
+		user = UserModel.objects.get(id=map_id(userId))
+		return ActivityModel.objects.filter(user=user)
+
+	def resolve_activitysByCard(self, info: ResolveInfo, cardId: str, **kwargs):
+		if not CardModel.objects.filter(id=map_id(cardId)).exists():
+			return exceptions.ObjectDoesNotExist("Provided card does not exist")
+
+		card = CardModel.objects.get(id=map_id(cardId))
+		return ActivityModel.objects.filter(card=card)
 
 
 class CreateActivity(graphene.Mutation):
