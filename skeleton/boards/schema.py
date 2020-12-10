@@ -45,7 +45,9 @@ class Query(graphene.ObjectType):
     boards = graphene.List(BoardType)
 
     def resolve_boards(self, info: ResolveInfo, **kwargs):
-        return BoardModel.objects.all()
+        user = get_user_by_context(info.context)
+
+        return set(list(user.boards.all()) + list(user.owns.all()) + list(user.manages.all()))
 
     def resolve_board(self, info: ResolveInfo, id: str, **kwargs):
         return BoardModel.objects.filter(id=map_id(id)).get()
@@ -58,14 +60,16 @@ class CreateNewBoard(graphene.Mutation):
 
     class Arguments:
         title = graphene.String(required=True)
+        background_url = graphene.String()
 
-    def mutate(self, info: ResolveInfo, title: str):
+    def mutate(self, info: ResolveInfo, title: str, background_url: str=""):
         success = False
         user = None
         board = None
 
         user = get_user_by_context(info.context)
-        board = BoardModel(title=title, background="", maker=user)
+        board = BoardModel(title=title, background=background_url, maker=user)
+        board.save()
         board.admins.add(user)
         board.save()
         success = True
