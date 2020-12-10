@@ -22,7 +22,7 @@ class CardModel(models.Model):
 	due_date = models.DateTimeField(default=None, blank=True, null=True)
 	position_in_list = models.IntegerField()
 	cover = models.CharField(max_length=255, default="")
-	labels = models.ManyToManyField(to=LabelModel, default=[])
+	labels = models.ManyToManyField(to=LabelModel, default=None, related_name='cards')
 
 	def edit(self,
 				title: str,

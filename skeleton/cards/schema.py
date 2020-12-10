@@ -10,6 +10,16 @@ from skeleton.lists.model import ListModel
 
 class CardType(DjangoObjectType):
 
+    labels = graphene.List('skeleton.labels.schema.LabelType')
+    activities = graphene.List('skeleton.activities.schema.ActivityType')
+
+    @graphene.resolve_only_args
+    def resolve_activities(self):
+        return self.activities.all()
+
+    @graphene.resolve_only_args
+    def resolve_labels(self):
+        return self.labels.all()
 
     class Meta:
         model = CardModel

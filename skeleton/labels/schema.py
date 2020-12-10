@@ -9,6 +9,12 @@ import graphene
 
 class LabelType(DjangoObjectType):
 
+	cards = graphene.List('skeleton.cards.schema.CardType')
+
+	@graphene.resolve_only_args
+	def resolve_cards(self):
+		return self.cards.all()
+
 	class Meta:
 		model = LabelModel
 		interfaces = (graphene.relay.Node, )
