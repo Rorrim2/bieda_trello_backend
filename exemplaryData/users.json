@@ -31,7 +31,7 @@
     "fields": {
       "name": "Gary",
       "last_name": "theGraill",
-      "email": "Gary.theGrail@.com",
+      "email": "Gary.theGrail@wp.com",
       "salt": "35e3165a560055bc9d95f914b1e30ca1",
       "hashed_pwd": "dc8ee49fd790961c633913a371b775c1f0aabc9105b32ed2297fce18c71fd031",
       "is_superuser": 0,

@@ -212,10 +212,34 @@ class RegisterUser(graphene.Mutation):
         return RegisterUser(**_register_password(user, password))
 
 
+class EditProfile(graphene.Mutation):
+    user = graphene.Field(UserType)
+
+    class Arguments:
+        user_id = graphene.String(required=True)
+        email = graphene.String(required=False)
+        name = graphene.String(required=False)
+        last_name = graphene.String(required=False)
+
+    def mutate(self, info, user_id: str, email: str, name: str, last_name: str):
+        if not UserModel.objects.filter(id=map_id(user_id)):
+            raise exceptions.ObjectDoesNotExist('Provided user does not exist')
+
+        user = get_user_by_context(info.context)
+
+        user.name = name if name is not None else user.name
+        user.last_name = last_name if last_name is not None else user.last_name
+        user.email = email if email is not None else user.email
+        user.save()
+
+        return EditProfile(user=user)
+
+
 class Mutation(graphene.ObjectType):
     loginuser = LoginUser.Field()
     registeruser = RegisterUser.Field()
     logoutuser = LogoutUser.Field()
     forgetpasswordrequest = ForgetPasswordRequest.Field()
     setnewpasswordaftereset = SetNewPasswordAfterReset.Field()
+    editprofile = EditProfile.Field()
 
