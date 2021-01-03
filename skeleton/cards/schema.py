@@ -56,9 +56,11 @@ class CreateCard(graphene.Mutation):
 
         list_db = ListModel.objects.filter(id=map_id(list_id)).get()
         list_db.board.check_user(user, "User is not allowed to modify this board")
-        cards = CardModel.objects.filter(list=list_db)
+        
+        lists_cards = CardModel.objects.filter(list=list_db)
 
-        card = CardModel(list=list_db, title=title, position_in_list=len(cards))
+        card = CardModel(list=list_db, title=title, position_in_list=len(lists_cards))
+        card.save()
         return CreateCard(card=card, success=True)
 
 
