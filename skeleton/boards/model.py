@@ -33,7 +33,7 @@ class BoardModel(models.Model):
         self.is_closed = False
 
     def check_user(self, user, message: str):
-        if (user not in self.users and
-            user not in self.admins and
+        if (user not in self.users.all() and
+            user not in self.admins.all() and
             user is not self.maker):
                 raise exceptions.PermissionDenied(message)
