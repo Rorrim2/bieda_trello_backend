@@ -23,8 +23,8 @@ class BoardModel(models.Model):
     is_visible = models.BooleanField(blank=True, default=True)
     description = models.TextField()
     background = models.CharField(max_length=255)
-    users = models.ManyToManyField(UserModel, default=None, related_name='boards')
-    admins = models.ManyToManyField(UserModel, default=None, related_name='manages')
+    users = models.ManyToManyField(UserModel, default=[], related_name='boards')
+    admins = models.ManyToManyField(UserModel, default=[], related_name='manages')
 
     def close(self):
         self.is_closed = True
