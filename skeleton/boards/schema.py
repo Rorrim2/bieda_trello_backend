@@ -260,3 +260,4 @@ class Mutation(graphene.ObjectType):
     deleteboard = DeleteBoard.Field()
     addadmin = AddAdmin.Field()
     adduser = AddUser.Field()
+    updateboard = UpdateBoard.Field()
