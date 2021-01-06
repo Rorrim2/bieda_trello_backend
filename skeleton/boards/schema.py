@@ -51,7 +51,7 @@ class Query(graphene.ObjectType):
 
     def resolve_board(self, info: ResolveInfo, id: str, **kwargs):
         user = None
-        board = BoardModel.objects.filter(id=map_id(id)).get()
+        board: BoardModel =BoardModel.objects.filter(id=map_id(id)).get()
         if board.is_visible and not board.is_closed:
             return board
 
@@ -60,9 +60,8 @@ class Query(graphene.ObjectType):
         except:
             raise GraphQLError('Not found')
 
-        if user is board.maker or user in board.admins or user in board.users:
-            return board
-        raise GraphQLError('Not found')
+        board.check_user(user=user, message="User has no permission to view this board")
+        return board
 
 
 class CreateNewBoard(graphene.Mutation):
@@ -285,4 +284,3 @@ class Mutation(graphene.ObjectType):
     adduser = AddUser.Field()
     updateboard = UpdateBoard.Field()
     changeboardvisibility = ChangeBoardVisibility.Field()
-    
