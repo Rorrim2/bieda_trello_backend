@@ -284,3 +284,5 @@ class Mutation(graphene.ObjectType):
     addadmin = AddAdmin.Field()
     adduser = AddUser.Field()
     updateboard = UpdateBoard.Field()
+    changeboardvisibility = ChangeBoardVisibility.Field()
+    
