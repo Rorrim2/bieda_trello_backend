@@ -7,7 +7,7 @@ from graphene import relay
 from django.core import exceptions
 from skeleton.boards.model import BoardModel
 from skeleton.users.model import UserModel
-
+from graphql import GraphQLError
 
 class BoardType(DjangoObjectType):
 
@@ -50,7 +50,19 @@ class Query(graphene.ObjectType):
         return set(list(user.boards.all()) + list(user.owns.all()) + list(user.manages.all()))
 
     def resolve_board(self, info: ResolveInfo, id: str, **kwargs):
-        return BoardModel.objects.filter(id=map_id(id)).get()
+        user = None
+        board = BoardModel.objects.filter(id=map_id(id)).get()
+        if board.is_visible and not board.is_closed:
+            return board
+
+        try:
+            user = get_user_by_context(info.context)
+        except:
+            raise GraphQLError('Not found')
+
+        if user is board.maker or user in board.admins or user in board.users:
+            return board
+        raise GraphQLError('Not found')
 
 
 class CreateNewBoard(graphene.Mutation):
