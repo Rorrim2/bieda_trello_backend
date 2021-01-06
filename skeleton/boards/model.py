@@ -37,3 +37,8 @@ class BoardModel(models.Model):
             user not in self.admins.all() and
             user is not self.maker):
                 raise exceptions.PermissionDenied(message)
+            
+    def check_user_update(self, user, message: str):
+        if(user not in self.admins.all() and
+            user is not self.maker):
+            raise exceptions.PermissionDenied(message)

@@ -102,11 +102,8 @@ class CloseBoard(graphene.Mutation):
         user = get_user_by_context(info.context)
 
         if BoardModel.objects.filter(id=map_id(board_id)).exists():
-            board = BoardModel.objects.get(id=map_id(board_id))
-
-            if(user not in board.admins):
-                raise exceptions.PermissionDenied('User has no permissions to close the board')
-
+            board: BoardModel =BoardModel.objects.get(id=map_id(board_id))
+            board.check_user_update(user=user, message='User has no permission to close the board')
             board.close()
             board.save()
             return CloseBoard(board=board)
@@ -128,11 +125,8 @@ class ReopenBoard(graphene.Mutation):
         user = get_user_by_context(info.context)
 
         if BoardModel.objects.filter(id=map_id(board_id)).exists():
-            board = BoardModel.objects.get(id=map_id(board_id))
-
-            if(user not in board.admins):
-                raise exceptions.PermissionDenied('User has no permissions to reopen the board')
-
+            board: BoardModel =BoardModel.objects.get(id=map_id(board_id))
+            board.check_user_update(user=user, message='User has no permissions to reopen the board')
             board.reopen()
             board.save()
             return ReopenBoard(board=board)
@@ -154,10 +148,9 @@ class DeleteBoard(graphene.Mutation):
         user = get_user_by_context(info.context)
 
         if BoardModel.objects.filter(id=map_id(board_id)).exists():
-            board = BoardModel.objects.get(id=map_id(board_id))
+            board: BoardModel =BoardModel.objects.get(id=map_id(board_id))
 
-            if(user not in board.admins):
-                raise exceptions.PermissionDenied('User has no permissions to permanently delete the board')
+            board.check_user_update(user=user, message="User has no permissions to delete the board")
 
             board.delete()
             success = True
@@ -240,6 +233,25 @@ class AddAdmin(graphene.Mutation):
             raise exceptions.ObjectDoesNotExist('Cannot add admin to board that does not exist')
 
 
+class ChangeBoardVisibility(graphene.Mutation):
+    board = graphene.Field(BoardType)
+
+    class Arguments:
+        boardId = graphene.String(required=True)
+        visibility = graphene.Boolean(required=True)
+    
+    def mutate(self, info: ResolveInfo, boardId: str, visibility: bool):
+        if BoardModel.objects.filter(id=map_id(boardId)).exists():
+            board: BoardModel =BoardModel.objects.get(id=map_id(boardId))
+            user = get_user_by_context(info.context)
+
+            board.check_user_update(user=user, message='User has no permissions to update board')
+            board.is_visible = visibility
+            board.save()
+            board.save()
+            return ChangeBoardVisibility(board=board)
+        return exceptions.ObjectDoesNotExist("Given board does not exist")
+
 class UpdateBoard(graphene.Mutation):
     board = graphene.Field(BoardType)
 
@@ -251,12 +263,11 @@ class UpdateBoard(graphene.Mutation):
 
     def mutate(self, info, board_id: str, title: str, description: str, background: str):
         if BoardModel.objects.filter(id=map_id(board_id)).exists():
-            board = BoardModel.objects.get(id=map_id(board_id))
+            board: BoardModel =BoardModel.objects.get(id=map_id(board_id))
             user = get_user_by_context(info.context)
 
-            board.check_user(user=user, message='User has no permissions to update board')
+            board.check_user_update(user=user, message='User has no permissions to update board')
 
-            board = BoardModel.objects.get(id=map_id(board_id))
             board.title = title if title is not None else board.title
             board.description = description if description is not None else board.description
             board.background = background if background is not None else board.background
