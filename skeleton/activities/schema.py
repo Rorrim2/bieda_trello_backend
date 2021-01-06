@@ -5,7 +5,10 @@ from graphene_django import DjangoObjectType
 from skeleton.activities.model import ActivityModel, ActivityTypeEnum
 from skeleton.users.model import UserModel
 from skeleton.cards.model import CardModel
+from skeleton.boards.model import BoardModel
+from skeleton.lists.model import ListModel
 from graphql.execution.base import ResolveInfo
+
 import graphene
 from datetime import datetime
 
@@ -21,28 +24,49 @@ class Query(graphene.ObjectType):
 	activity = graphene.Field(ActivityType, id=graphene.String())
 	activitysByUser = graphene.List(ActivityType, userId=graphene.String())
 	activitysByCard = graphene.List(ActivityType, cardId=graphene.String())
+	activitysByBoard = graphene.List(ActivityType, boardId=graphene.String())
+
 
 	def resolve_activitys(self, info: ResolveInfo, **kwargs):
 		print(info.path)
+		user = get_user_by_context(info.context)
 		return ActivityModel.objects.all()
 
 	def resolve_activity(self, info: ResolveInfo, id: str, **kwargs):
 		print(info.path)
+		user = get_user_by_context(info.context)
 		return ActivityModel.objects.filter(id=map_id(id)).get()
 
-	def resolve_activitysByUser(self, info: ResolveInfo, userId: str, **kwargs):
-		if not UserModel.objects.filter(id=map_id(userId)).exists():
-			return exceptions.ObjectDoesNotExist("Provided user does not exist")
-
-		user = UserModel.objects.get(id=map_id(userId))
+	def resolve_activitysByUser(self, info: ResolveInfo, **kwargs):
+		user = get_user_by_context(info.context)
 		return ActivityModel.objects.filter(user=user)
 
 	def resolve_activitysByCard(self, info: ResolveInfo, cardId: str, **kwargs):
 		if not CardModel.objects.filter(id=map_id(cardId)).exists():
 			return exceptions.ObjectDoesNotExist("Provided card does not exist")
+		user = get_user_by_context(info.context)
 
 		card = CardModel.objects.get(id=map_id(cardId))
+		card.list.board.check_user(user, "User is not allowed to even LOOK at this board. Get him outa here")
 		return ActivityModel.objects.filter(card=card)
+
+	def resolve_activitysByBoard(self, info: ResolveInfo, boardId: str, **kwargs):
+		if not BoardModel.objects.filter(id=map_id(boardId)).exists():
+			return exceptions.ObjectDoesNotExist("Provided board does not exist")
+
+		user = get_user_by_context(info.context)
+		# *sniff* *sniff* reeks of newbie maybe will change it later
+		# sick, probably not :)
+		board = BoardModel.objects.get(id=map_id(boardId))
+		board.check_user(user, "User is not allowed to even LOOK at this board. Get him outa here")
+		activitiesQuerySet = ActivityModel.objects.filter(card=None)
+		lists = ListModel.objects.get(board=board)
+		for eachList in lists:
+			cards = CardModel.objects.filter(list=eachList)
+			for card in cards:
+				activitiesQuerySet.union(ActivityModel.objects.filter(card=card))
+		
+		return activitiesQuerySet
 
 
 class CreateActivity(graphene.Mutation):
