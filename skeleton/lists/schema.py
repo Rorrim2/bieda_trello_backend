@@ -68,7 +68,7 @@ class UpdateList(graphene.Mutation):
         title = graphene.String(required=False)
         position_on_board = graphene.Int(required=False)
 
-    def mutate(self, info, list_id: str, title: str, position_on_board: int):
+    def mutate(self, info, list_id: str, title: str= None, position_on_board: int= None):
         if ListModel.objects.filter(id=map_id(list_id)).exists():
             list = ListModel.objects.get(id=map_id(list_id))
             user = get_user_by_context(info.context)
