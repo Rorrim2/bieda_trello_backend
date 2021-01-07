@@ -119,13 +119,13 @@ class EditCard(graphene.Mutation):
                       position_in_list=position_in_list,
                       cover=cover,
                       )
-            card.save()
             activityContent = user.name + " " + user.last_name + " edited card in list " + card.list.title
             activity = ActivityModel(card=card, 
                 user=user, 
                 content=activityContent, 
                 type=ActivityTypeEnum.ACTIVITY_LOG_VAL)
             activity.save()
+            card.save()
             return EditCard(card=card, success=True)
         else:
             raise exceptions.ObjectDoesNotExist("Provided card does not exist")
