@@ -56,7 +56,7 @@ class ActivityTypeEnum():
 		return exceptions.FieldError("type_val is not a viable ActivityTypeEnum value")
 
 class ActivityModel(models.Model):
-	date_storage_format = 'YYYY-MM-DD HH:MM:ss[TZ]'
+	date_storage_format = 'YYYY-MM-DDThh:mm:ssTZD'
 
 	card = models.ForeignKey(to=CardModel, on_delete=models.CASCADE, related_name='activities')
 	user = models.ForeignKey(to=UserModel, on_delete=models.CASCADE)

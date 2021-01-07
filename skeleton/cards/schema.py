@@ -6,7 +6,8 @@ from graphql.execution.base import ResolveInfo
 from django.core import exceptions
 from skeleton.cards.model import CardModel
 from skeleton.lists.model import ListModel
-
+from skeleton.activities.model import ActivityModel, ActivityTypeEnum
+from datetime import datetime
 
 class CardType(DjangoObjectType):
 
@@ -61,6 +62,13 @@ class CreateCard(graphene.Mutation):
 
         card = CardModel(list=list_db, title=title, position_in_list=len(lists_cards))
         card.save()
+
+        activityContent = user.name + " " + user.last_name + " created card and added it to list " + card.list.title
+        activity = ActivityModel(card=card, 
+            user=user,
+            content=activityContent, 
+            type=ActivityTypeEnum.ACTIVITY_LOG_VAL)
+        activity.save()
         return CreateCard(card=card, success=True)
 
 
@@ -82,7 +90,7 @@ class EditCard(graphene.Mutation):
                info: ResolveInfo,
                card_id: str,
                **kwargs):
-        user = get_user_by_context(info.context)
+        # user = get_user_by_context(info.context)
         title = kwargs.get('title', None)
         description = kwargs.get('description', None)
         list_id = kwargs.get('list_id', None)
@@ -92,7 +100,9 @@ class EditCard(graphene.Mutation):
         cover = kwargs.get('cover', None)
 
         if CardModel.objects.filter(id=map_id(card_id)).exists():
+            user = get_user_by_context(info.context)
             card = CardModel.objects.get(id=map_id(card_id))
+            card.list.board.check_user(user, 'User have no permission to update this board')
             listdb: ListModel = None
 
             if list_id is not None and ListModel.objects().filter(id=map_id(list_id)).exists():
@@ -100,7 +110,7 @@ class EditCard(graphene.Mutation):
             elif list_id is not None:
                 raise exceptions.ObjectDoesNotExist('Provided list does not exist')
 
-            listdb.board.check_user(user, "User is not allowed to modify this board")  
+            # listdb.board.check_user(user, "User is not allowed to modify this board")  
             card.edit(title=title,
                       description=description,
                       listdb=listdb,
@@ -110,6 +120,12 @@ class EditCard(graphene.Mutation):
                       cover=cover,
                       )
             card.save()
+            activityContent = user.name + " " + user.last_name + " edited card in list " + card.list.title
+            activity = ActivityModel(card=card, 
+                user=user, 
+                content=activityContent, 
+                type=ActivityTypeEnum.ACTIVITY_LOG_VAL)
+            activity.save()
             return EditCard(card=card, success=True)
         else:
             raise exceptions.ObjectDoesNotExist("Provided card does not exist")
